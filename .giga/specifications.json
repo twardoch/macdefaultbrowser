@@ -1,0 +1,22 @@
+[
+  {
+    "fileName": "main-overview.mdc",
+    "description": "Complete system overview documenting the core architecture, key components, and high-level workflow of the macdefaultbrowser tool"
+  },
+  {
+    "fileName": "launch-services-integration.mdc",
+    "description": "Detailed documentation of the Launch Services API integration, including browser querying, identification, and setting algorithms"
+  },
+  {
+    "fileName": "bundle-identifier-processing.mdc",
+    "description": "Documentation of the bundle identifier transformation logic, mapping rules, and case-insensitive matching algorithms"
+  },
+  {
+    "fileName": "dialog-automation.mdc",
+    "description": "Technical details of the automated dialog confirmation system, including AppleScript integration and interaction flow"
+  },
+  {
+    "fileName": "data-flow.mdc",
+    "description": "Comprehensive documentation of data flow between components, including browser query results, user input processing, and system interactions"
+  }
+]

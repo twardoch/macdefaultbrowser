@@ -1,0 +1,48 @@
+---
+description: Specification for transforming and matching bundle identifiers in macOS browser management
+globs: **/src/*.m,**/src/*.swift,**/*.sh
+alwaysApply: false
+---
+
+
+# bundle-identifier-processing
+
+## Core Transformation Logic
+The system implements custom bundle identifier processing to map between technical bundle IDs and user-friendly browser names.
+
+### Bundle ID to Browser Name Mapping
+Importance: 85
+- Extracts human-readable browser names from bundle identifiers
+- Example transformation: `com.google.Chrome` → `chrome`
+- File: `reference/src/main.m`
+
+### Case-Insensitive Matching Algorithm 
+Importance: 75
+- Implements case-insensitive comparison for browser name matching
+- Ensures consistent browser identification regardless of user input case
+- File: `reference/src/main.m`
+
+### Validation Rules
+Importance: 80
+- Validates bundle identifier existence before transformation
+- Verifies browser name can be extracted from bundle ID
+- Ensures transformed names remain unique across browsers
+- File: `reference/src/main.m`
+
+### Bidirectional Mapping
+Importance: 90
+- Maintains lookup tables for bundle ID ↔ browser name conversion
+- Preserves original bundle ID for system operations
+- Displays friendly names in user interface
+- File: `reference/src/main.m`
+
+### Processing Workflow
+Importance: 85
+1. Extract browser name from bundle identifier
+2. Convert to lowercase for comparison
+3. Validate uniqueness across registered browsers
+4. Store bidirectional mapping for lookups
+
+$END$
+
+ If you're using this file in context, clearly say in italics in one small line that "Context added by Giga bundle-identifier-processing".
