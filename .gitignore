@@ -1,66 +1,39 @@
-# this_file: .gitignore
-
-# Swift build artifacts
-.build/
-build/
-dist/
-DerivedData/
-*.xcodeproj
-*.xcworkspace
-.swiftpm/
-
-# Built binary
-macdefaultbrowser
-
-# Generated files (but not templates)
-Sources/macdefaultbrowser/Version.swift
-!Sources/macdefaultbrowser/Version.swift.template
-
-# macOS
-.DS_Store
-*.swp
-*.swo
-*~
 ._*
 .AppleDouble
-.LSOverride
-Icon
+.build/
 .com.apple.timemachine.donotpresent
+.coverage/
 .DocumentRevisions-V100
+.DS_Store
 .fseventsd
+.idea/
+.LSOverride
+.netrc
 .Spotlight-V100
+.swiftpm/
 .TemporaryItems
 .Trashes
 .VolumeIcon.icns
-
-# IDE
 .vscode/
-.idea/
-xcuserdata/
-
-# Temporary files
-*.tmp
 *.bak
-
-# Test coverage
-*.profraw
-*.profdata
-.coverage/
-
-# Package resolved file
-Package.resolved
-
-# Build artifacts
 *.dSYM
 *.dSYM.zip
 *.hmap
 *.ipa
 *.LinkFileList
 *.o
-
-# Project specific
+*.profdata
+*.profraw
+*.swo
+*.swp
+*.tmp
+*.xcodeproj
+*.xcworkspace
+*~
+build/
+DerivedData/
+Icon
 llms.txt
-.netrc
-
-# Keep reference directory
-!reference/.specstory/
+macdefaultbrowser
+Package.resolved
+xcuserdata/
