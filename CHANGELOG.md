@@ -30,6 +30,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Added multiple retry strategies for dialog button detection
 - Increased timeouts and improved timing for dialog automation
 - Fixed unused variable warnings in browser setting code
+- **Fixed dialog automation by using subprocess approach** - AppleScript is now executed via osascript subprocess instead of NSAppleScript API, which properly handles system dialog clicking
 
 ### Technical Details
 

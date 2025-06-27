@@ -3,6 +3,7 @@
 import Foundation
 
 /// Handles automatic confirmation of system dialogs when changing default browser
+/// Uses subprocess approach to run osascript for better compatibility
 struct DialogAutomation {
     
     /// Map internal browser names to display names used in system dialogs
@@ -19,121 +20,94 @@ struct DialogAutomation {
         case "chromium":
             return "Chromium"
         default:
-            // For unknown browsers, try the name as-is and also capitalized
             return browserName
         }
     }
     
-    /// Confirm the browser change dialog automatically
-    /// - Parameters:
-    ///   - browserName: Name of the browser being set as default
-    ///   - timeout: Maximum time to wait for dialog (default: 2.0 seconds)
-    /// - Returns: True if dialog was found and clicked, false otherwise
-    @discardableResult
-    static func confirmBrowserChangeDialog(for browserName: String, timeout: TimeInterval = 2.0) async -> Bool {
+    /// Execute osascript as a subprocess
+    private static func runOsascript(_ script: String) -> String? {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
+        process.arguments = ["-e", script]
+        
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = pipe
+        
+        do {
+            try process.run()
+            process.waitUntilExit()
+            
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
+        } catch {
+            print("Error running osascript: \(error)")
+            return nil
+        }
+    }
+    
+    /// Monitor and click the dialog using subprocess
+    private static func monitorAndClickDialog(browserName: String) {
         let displayName = dialogBrowserName(for: browserName)
-        let script = """
-        tell application "System Events"
-            set startTime to current date
-            repeat while (current date) - startTime < \(timeout)
-                try
-                    if exists window 1 of process "CoreServicesUIAgent" then
-                        set buttonList to buttons of window 1 of process "CoreServicesUIAgent"
-                        repeat with currentButton in buttonList
-                            set buttonTitle to name of currentButton as string
-                            ignoring case
-                                if buttonTitle contains "\(displayName)" then
-                                    click currentButton
-                                    return "success"
-                                end if
-                            end ignoring
-                        end repeat
-                    end if
-                end try
-                delay 0.1
-            end repeat
-            return "timeout"
-        end tell
-        """
         
-        return await withCheckedContinuation { continuation in
-            Task {
-                let result = runAppleScript(script)
-                continuation.resume(returning: result == "success")
-            }
-        }
-    }
-    
-    /// Execute AppleScript and return result
-    /// - Parameter script: AppleScript code to execute
-    /// - Returns: Result string from the script, or nil if error
-    private static func runAppleScript(_ script: String) -> String? {
-        var error: NSDictionary?
-        
-        guard let scriptObject = NSAppleScript(source: script) else {
-            return nil
-        }
-        
-        let output = scriptObject.executeAndReturnError(&error)
-        
-        if error != nil {
-            // Log error for debugging but don't expose to user
-            return nil
-        }
-        
-        return output.stringValue
-    }
-    
-    /// Set default browser with automatic dialog confirmation
-    /// - Parameter browserName: Name of the browser to set as default
-    /// - Throws: BrowserError if setting fails
-    static func setDefaultBrowserWithAutomation(_ browserName: String) async throws {
-        // Start the dialog automation task that will wait for and click the dialog
-        let automationTask = Task { () -> Bool in
-            // Give the system a moment to show the dialog
-            try? await Task.sleep(nanoseconds: 300_000_000) // 0.3 seconds
-            
-            // Try to click the dialog button
-            let clicked = await confirmBrowserChangeDialog(for: browserName, timeout: 3.0)
-            
-            if !clicked {
-                // Try again with more variations
-                let variations = [
-                    browserName,
-                    dialogBrowserName(for: browserName),
-                    browserName.capitalized,
-                    "Use \"",  // Sometimes the button just says "Use "Browser Name""
-                ]
+        DispatchQueue.global(qos: .userInitiated).async {
+            for _ in 0..<20 { // Check for 10 seconds
+                Thread.sleep(forTimeInterval: 0.5)
                 
-                for variation in variations {
-                    if await confirmBrowserChangeDialog(for: variation, timeout: 1.0) {
-                        return true
+                let script = """
+                tell application "System Events"
+                    if exists process "CoreServicesUIAgent" then
+                        if exists window 1 of process "CoreServicesUIAgent" then
+                            set buttonList to buttons of window 1 of process "CoreServicesUIAgent"
+                            repeat with currentButton in buttonList
+                                try
+                                    set buttonTitle to name of currentButton as string
+                                    if buttonTitle contains "\(displayName)" or buttonTitle contains "Use" then
+                                        click currentButton
+                                        return "Clicked: " & buttonTitle
+                                    end if
+                                end try
+                            end repeat
+                            return "No matching button found"
+                        else
+                            return "No window"
+                        end if
+                    else
+                        return "No process"
+                    end if
+                end tell
+                """
+                
+                if let result = runOsascript(script) {
+                    if result.contains("Clicked:") {
+                        // Extract browser name from result like "Clicked: Use "Edge""
+                        if let browserStart = result.range(of: "\""),
+                           let browserEnd = result.range(of: "\"", options: .backwards),
+                           browserStart.lowerBound < browserEnd.lowerBound {
+                            let browser = String(result[browserStart.upperBound..<browserEnd.lowerBound])
+                            print("As the default browser, the system will now use \(browser)")
+                        } else {
+                            print("As the default browser, the system will now use \(displayName)")
+                        }
+                        break
                     }
                 }
             }
-            
-            return clicked
         }
+    }
+    
+    /// Set default browser with automatic dialog confirmation
+    static func setDefaultBrowserWithAutomation(_ browserName: String) async throws {
+        // Start monitoring in background
+        monitorAndClickDialog(browserName: browserName)
         
-        // Set the default browser (this will trigger the dialog)
-        do {
-            try BrowserManager.setDefaultBrowser(browserName)
-        } catch {
-            // Cancel the automation task if setting failed
-            automationTask.cancel()
-            throw error
-        }
+        // Small delay to ensure monitor is running
+        try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
         
-        // Wait for automation to complete
-        let dialogClicked = await automationTask.value
+        // Trigger the dialog
+        try BrowserManager.setDefaultBrowser(browserName)
         
-        // Give the system a moment to process the change
-        try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
-        
-        // Note: Even if dialog wasn't clicked, the browser change request was made
-        // The user will need to manually confirm if automation failed
-        if !dialogClicked {
-            print("Note: Could not automatically confirm the dialog. Please click 'Use \"\(browserName)\"' in the system dialog.")
-        }
+        // Wait for the change to complete
+        try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
     }
 }
