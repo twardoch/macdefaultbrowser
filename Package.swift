@@ -18,7 +18,10 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "macdefaultbrowser",
-            dependencies: []
+            dependencies: [],
+            swiftSettings: [
+                .unsafeFlags(["-parse-as-library"])
+            ]
         ),
         .testTarget(
             name: "macdefaultbrowserTests",

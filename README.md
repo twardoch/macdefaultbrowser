@@ -1,25 +1,116 @@
 
-# `macdefaultbrowser`
+# macdefaultbrowser
 
-Swift rewrite of `reference/src` incorporating the `reference/good.sh` script:
+A command-line tool for macOS that allows you to view installed browsers and set the default web browser, with automatic dialog confirmation.
 
-1. `macdefaultbrowser` by itself lists the potential browsers and marks the default browser with a `*`
+## Features
 
-2. `macdefaultbrowser` with a browser name argument sets that browser as the default and if the dialog appears, confirms it (like `good.sh`)
+- List all installed web browsers with the current default marked with `*`
+- Set any browser as the default with a simple command
+- Automatically confirms the system dialog (no manual clicking required)
+- Built as a universal binary (Intel + Apple Silicon)
+- Simple installation via Homebrew or manual install
 
-3. The Makefile builds the tool with `make`, and installs the tool into the executable path (probably `/usr/local/bin`) with `make install`
+## Installation
 
-4. Homebrew formula is provided for easy installation
+### Homebrew (coming soon)
 
-5. MIT-licensed
-
-6. Is built as universal binary
-
-7. Includes Github actions to build on macOS, and on a new git tag formed like `vA.B.C` makes a Github release, and upload the binary to the release
-
-8. To capture a snapshot of the codebase, run:
-
-```
-repomix -i ".giga,.cursorrules,.cursor,*.md" -o llms.txt .
+```bash
+brew install macdefaultbrowser
 ```
 
+### Manual Installation
+
+```bash
+git clone https://github.com/twardoch/macdefaultbrowser.git
+cd macdefaultbrowser
+make install
+```
+
+This will build and install the binary to `/usr/local/bin`.
+
+## Usage
+
+### List all browsers
+
+```bash
+macdefaultbrowser
+```
+
+Output example:
+```
+  chrome
+  firefox
+* safari
+  edge
+```
+
+### Set default browser
+
+```bash
+macdefaultbrowser chrome
+```
+
+The tool will automatically set Chrome as your default browser and confirm the system dialog.
+
+## Building from Source
+
+### Requirements
+
+- macOS 10.15 or later
+- Xcode 13.0 or later
+- Swift 5.7 or later
+
+### Build
+
+```bash
+make build
+```
+
+### Run tests
+
+```bash
+make test
+```
+
+### Clean
+
+```bash
+make clean
+```
+
+### Uninstall
+
+```bash
+make uninstall
+```
+
+## How it Works
+
+The tool uses the macOS Launch Services API to:
+1. Query all installed applications that can handle HTTP/HTTPS URLs
+2. Get the current default browser
+3. Set a new default browser for both HTTP and HTTPS schemes
+
+When setting a new default browser, the tool also uses AppleScript automation to automatically click the confirmation button in the system dialog, providing a seamless experience.
+
+## Development
+
+To capture a snapshot of the codebase:
+
+```bash
+npx repomix -i ".giga,.cursorrules,.cursor,*.md" -o llms.txt .
+```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- Original Objective-C implementation in `reference/src/main.m`
+- Dialog automation inspired by `reference/good.sh`

@@ -188,4 +188,23 @@ Be creative, diligent, critical, relentless & funny! Lead two experts: "Ideot" f
 - Ensures persistence of browser settings
 - Handles privilege escalation requirements
 
+## Regular cleanup and maintenance
+
+Record all recent changes in CHANGELOG.md. 
+
+Run:
+
+
+```
+npx repomix -i ".giga,.cursorrules,.cursor,*.md" -o llms.txt .
+```
+
+Analyze the entire codebase: ./llms.txt 
+
+Into PLAN.md, make an extensive detailed step-by-step itemized plan that discusses at length how to improve the code. Then write a simplified `- [ ]` prefixed list of that plan into TODO.md. 
+
+Then re-read PLAN.md and TODO.md, and start implementing. Record all changes in CHANGELOG.md and keep updating PLAN.md and TODO.md to reflect the progress. 
+
+Implement all changes that lead to a well-functioning, elegant, efficient project. Keep documentation and the build tooling in sync with the codebase. 
+
 $END$

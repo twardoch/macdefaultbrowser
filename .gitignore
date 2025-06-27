@@ -1,38 +1,61 @@
-!*.xcodeproj/project.pbxproj
-!*.xcodeproj/xcshareddata/
-!*.xcworkspace/contents.xcworkspacedata
+# this_file: .gitignore
+
+# Swift build artifacts
+.build/
+build/
+DerivedData/
+*.xcodeproj
+*.xcworkspace
+.swiftpm/
+
+# Built binary
+macdefaultbrowser
+
+# macOS
+.DS_Store
+*.swp
+*.swo
+*~
 ._*
 .AppleDouble
-.build/
+.LSOverride
+Icon
 .com.apple.timemachine.donotpresent
 .DocumentRevisions-V100
-.DS_Store
 .fseventsd
-.idea/
-.LSOverride
-.netrc
 .Spotlight-V100
-.swiftpm/
 .TemporaryItems
 .Trashes
 .VolumeIcon.icns
+
+# IDE
+.vscode/
+.idea/
+xcuserdata/
+
+# Temporary files
+*.tmp
+*.bak
+
+# Test coverage
+*.profraw
+*.profdata
+.coverage/
+
+# Package resolved file
+Package.resolved
+
+# Build artifacts
 *.dSYM
 *.dSYM.zip
 *.hmap
 *.ipa
 *.LinkFileList
 *.o
-*.swo
-*.swp
-*.xccheckout
-*.xcodeproj/*
-*.xcscmblueprint
-**/xcshareddata/WorkspaceSettings.xcsettings
-*~
-build/
-DerivedData/
-Icon
-Package.resolved
-xcuserdata/
+
+# Project specific
 llms.txt
-reference
+.netrc
+
+# Keep reference directory
+!reference/

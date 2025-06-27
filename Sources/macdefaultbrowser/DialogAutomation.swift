@@ -56,7 +56,7 @@ struct DialogAutomation {
         
         let output = scriptObject.executeAndReturnError(&error)
         
-        if let error = error {
+        if error != nil {
             // Log error for debugging but don't expose to user
             return nil
         }
