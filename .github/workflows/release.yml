@@ -1,0 +1,88 @@
+# this_file: .github/workflows/release.yml
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  release:
+    runs-on: macos-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Select Xcode
+      run: sudo xcode-select -s /Applications/Xcode.app
+    
+    - name: Build universal binary
+      run: make build
+    
+    - name: Create release directory
+      run: mkdir -p release
+    
+    - name: Package binary
+      run: |
+        cp macdefaultbrowser release/
+        cd release
+        tar -czf macdefaultbrowser-${GITHUB_REF_NAME}.tar.gz macdefaultbrowser
+        zip macdefaultbrowser-${GITHUB_REF_NAME}.zip macdefaultbrowser
+    
+    - name: Generate checksums
+      run: |
+        cd release
+        shasum -a 256 macdefaultbrowser-${GITHUB_REF_NAME}.tar.gz > macdefaultbrowser-${GITHUB_REF_NAME}.tar.gz.sha256
+        shasum -a 256 macdefaultbrowser-${GITHUB_REF_NAME}.zip > macdefaultbrowser-${GITHUB_REF_NAME}.zip.sha256
+    
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref_name }}
+        release_name: Release ${{ github.ref_name }}
+        draft: false
+        prerelease: false
+    
+    - name: Upload tar.gz
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./release/macdefaultbrowser-${{ github.ref_name }}.tar.gz
+        asset_name: macdefaultbrowser-${{ github.ref_name }}.tar.gz
+        asset_content_type: application/gzip
+    
+    - name: Upload zip
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./release/macdefaultbrowser-${{ github.ref_name }}.zip
+        asset_name: macdefaultbrowser-${{ github.ref_name }}.zip
+        asset_content_type: application/zip
+    
+    - name: Upload tar.gz checksum
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./release/macdefaultbrowser-${{ github.ref_name }}.tar.gz.sha256
+        asset_name: macdefaultbrowser-${{ github.ref_name }}.tar.gz.sha256
+        asset_content_type: text/plain
+    
+    - name: Upload zip checksum
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./release/macdefaultbrowser-${{ github.ref_name }}.zip.sha256
+        asset_name: macdefaultbrowser-${{ github.ref_name }}.zip.sha256
+        asset_content_type: text/plain
