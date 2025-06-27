@@ -32,10 +32,18 @@ all: build
 
 # Build the binary
 .PHONY: build
-build:
+build: generate-version
 	@mkdir -p $(BUILD_DIR)
 	$(SWIFT) build $(SWIFT_BUILD_FLAGS)
 	cp .build/apple/Products/Release/$(BINARY_NAME) $(BUILD_DIR)/$(BINARY_NAME)
+
+# Generate Version.swift from template
+.PHONY: generate-version
+generate-version:
+	@echo "Generating Version.swift with version $(VERSION)"
+	@sed -e 's/VERSION_PLACEHOLDER/$(VERSION)/g' \
+	     -e 's/GIT_DESCRIBE_PLACEHOLDER/$(GIT_DESCRIBE)/g' \
+	     Sources/macdefaultbrowser/Version.swift.template > Sources/macdefaultbrowser/Version.swift
 
 # Install the binary
 .PHONY: install
@@ -50,6 +58,7 @@ clean:
 	rm -rf .build
 	rm -rf $(BUILD_DIR)
 	rm -rf $(DIST_DIR)
+	rm -f Sources/macdefaultbrowser/Version.swift
 
 # Uninstall the binary
 .PHONY: uninstall
