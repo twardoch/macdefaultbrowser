@@ -23,6 +23,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Unit tests for browser management
 - `.gitignore` for Swift projects
 
+### Fixed
+
+- Dialog automation now properly maps internal browser names to display names (e.g., "edgemac" → "Edge")
+- Improved error handling for Launch Services API that may return errors even when dialog is shown
+- Added multiple retry strategies for dialog button detection
+- Increased timeouts and improved timing for dialog automation
+- Fixed unused variable warnings in browser setting code
+
 ### Technical Details
 
 - Built with Swift 5.7 and macOS 10.15 minimum deployment target

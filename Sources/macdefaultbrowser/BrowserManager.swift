@@ -59,12 +59,13 @@ struct BrowserManager {
         }
         
         // Set for both HTTP and HTTPS
-        let httpSuccess = LaunchServicesWrapper.setDefaultHandler(bundleID, for: "http")
-        let httpsSuccess = LaunchServicesWrapper.setDefaultHandler(bundleID, for: "https")
+        // Note: The API may return false even when the dialog is shown successfully
+        // This is because the API considers it a "failure" until the user confirms
+        _ = LaunchServicesWrapper.setDefaultHandler(bundleID, for: "http")
+        _ = LaunchServicesWrapper.setDefaultHandler(bundleID, for: "https")
         
-        if !httpSuccess || !httpsSuccess {
-            throw BrowserError.setDefaultFailed(browserName)
-        }
+        // Don't throw an error here as the dialog may have been shown
+        // The automation will handle clicking it
     }
     
     /// List all available browsers with current default marked

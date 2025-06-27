@@ -5,6 +5,25 @@ import Foundation
 /// Handles automatic confirmation of system dialogs when changing default browser
 struct DialogAutomation {
     
+    /// Map internal browser names to display names used in system dialogs
+    private static func dialogBrowserName(for browserName: String) -> String {
+        switch browserName.lowercased() {
+        case "chrome":
+            return "Chrome"
+        case "safari":
+            return "Safari"
+        case "firefox", "firefoxdeveloperedition":
+            return "Firefox"
+        case "edgemac":
+            return "Edge"
+        case "chromium":
+            return "Chromium"
+        default:
+            // For unknown browsers, try the name as-is and also capitalized
+            return browserName
+        }
+    }
+    
     /// Confirm the browser change dialog automatically
     /// - Parameters:
     ///   - browserName: Name of the browser being set as default
@@ -12,6 +31,7 @@ struct DialogAutomation {
     /// - Returns: True if dialog was found and clicked, false otherwise
     @discardableResult
     static func confirmBrowserChangeDialog(for browserName: String, timeout: TimeInterval = 2.0) async -> Bool {
+        let displayName = dialogBrowserName(for: browserName)
         let script = """
         tell application "System Events"
             set startTime to current date
@@ -22,7 +42,7 @@ struct DialogAutomation {
                         repeat with currentButton in buttonList
                             set buttonTitle to name of currentButton as string
                             ignoring case
-                                if buttonTitle contains "\(browserName)" then
+                                if buttonTitle contains "\(displayName)" then
                                     click currentButton
                                     return "success"
                                 end if
@@ -68,18 +88,47 @@ struct DialogAutomation {
     /// - Parameter browserName: Name of the browser to set as default
     /// - Throws: BrowserError if setting fails
     static func setDefaultBrowserWithAutomation(_ browserName: String) async throws {
-        // Start the dialog automation task
-        let automationTask = Task {
-            // Wait a bit for the dialog to appear
-            try? await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds
-            return await confirmBrowserChangeDialog(for: browserName)
+        // Start the dialog automation task that will wait for and click the dialog
+        let automationTask = Task { () -> Bool in
+            // Give the system a moment to show the dialog
+            try? await Task.sleep(nanoseconds: 300_000_000) // 0.3 seconds
+            
+            // Try to click the dialog button
+            let clicked = await confirmBrowserChangeDialog(for: browserName, timeout: 3.0)
+            
+            if !clicked {
+                // Try again with more variations
+                let variations = [
+                    browserName,
+                    dialogBrowserName(for: browserName),
+                    browserName.capitalized,
+                    "Use \"",  // Sometimes the button just says "Use "Browser Name""
+                ]
+                
+                for variation in variations {
+                    if await confirmBrowserChangeDialog(for: variation, timeout: 1.0) {
+                        return true
+                    }
+                }
+            }
+            
+            return clicked
         }
         
         // Set the default browser (this will trigger the dialog)
-        try BrowserManager.setDefaultBrowser(browserName)
+        do {
+            try BrowserManager.setDefaultBrowser(browserName)
+        } catch {
+            // Cancel the automation task if setting failed
+            automationTask.cancel()
+            throw error
+        }
         
         // Wait for automation to complete
         let dialogClicked = await automationTask.value
+        
+        // Give the system a moment to process the change
+        try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
         
         // Note: Even if dialog wasn't clicked, the browser change request was made
         // The user will need to manually confirm if automation failed

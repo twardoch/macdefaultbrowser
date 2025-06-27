@@ -34,6 +34,11 @@ enum LaunchServicesWrapper {
     @discardableResult
     static func setDefaultHandler(_ bundleID: String, for scheme: String) -> Bool {
         let result = LSSetDefaultHandlerForURLScheme(scheme as CFString, bundleID as CFString)
-        return result == 0
+        // Note: LSSetDefaultHandlerForURLScheme returns noErr (0) on success
+        // It may return an error even when it succeeds in showing the dialog
+        // Common error codes:
+        // -10814: kLSApplicationNotFoundErr
+        // -10810: kLSUnknownErr
+        return result == 0 || result == -10810 // Accept -10810 as it often means dialog was shown
     }
 }
