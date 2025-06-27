@@ -12,6 +12,9 @@ DerivedData/
 # Built binary
 macdefaultbrowser
 
+# Generated files
+Sources/macdefaultbrowser/Version.swift
+
 # macOS
 .DS_Store
 *.swp

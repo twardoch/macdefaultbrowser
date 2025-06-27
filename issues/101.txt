@@ -1,0 +1,55 @@
+When running GH action:
+
+```
+
+Release
+Add version generation step to build process #3
+Jobs
+Run details
+Annotations
+1 error
+release
+failed now in 9s
+Search logs
+3s
+Current runner version: '2.325.0'
+Operating System
+Runner Image
+Runner Image Provisioner
+GITHUB_TOKEN Permissions
+Secret source: Actions
+Prepare workflow directory
+Prepare all required actions
+Getting action download info
+Download immutable action package 'actions/checkout@v3'
+Download action repository 'actions/create-release@v1' (SHA:0cb9c9b65d5d1901c1f53e5e66eaf4afd303e70e)
+Download action repository 'actions/upload-release-asset@v1' (SHA:e8f9f06c4b078e705bd2ea027f0926603fc9b4d5)
+Complete job name: release
+1s
+Run actions/checkout@v3
+Syncing repository: twardoch/macdefaultbrowser
+Getting Git version info
+Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/9bc1b686-a6d9-4880-8688-7bdc95fa9975/.gitconfig'
+Temporarily overriding HOME='/Users/runner/work/_temp/9bc1b686-a6d9-4880-8688-7bdc95fa9975' before making global git config changes
+Adding repository directory to the temporary git global config as a safe directory
+/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/macdefaultbrowser/macdefaultbrowser
+Deleting the contents of '/Users/runner/work/macdefaultbrowser/macdefaultbrowser'
+Initializing the repository
+Disabling automatic garbage collection
+Setting up auth
+Fetching the repository
+Determining the checkout info
+Checking out the ref
+/opt/homebrew/bin/git log -1 --format='%H'
+'8f65ee0f5c9e4e20f33603e7b2fa5d9372fa5dc3'
+0s
+Run sudo xcode-select -s /Applications/Xcode.app
+0s
+Run echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+2s
+Run VERSION=1.2.1 make dist
+Generating Version.swift with version 1.2.1
+sed: Sources/macdefaultbrowser/Version.swift.template: No such file or directory
+make: *** [generate-version] Error 1
+Error: Process completed with exit code 2.
+```

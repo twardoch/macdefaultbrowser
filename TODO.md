@@ -2,9 +2,7 @@
 
 ### 0.1. Building
 
-- [x] The builds should go into the `build/` folder, not into the root folder of the repo
-- [x] `make dist` should in the `dist` folder create an installable .pkg and then a .dmg with the .pkg inside. The .pkg should install the binary into `/usr/local/bin`
-- [x] Ensure that the distributable .dmg is uploaded to the Github release artifacts on tag-based release
+- [ ] `issues/101.txt` read and fix
 
 ### 0.2. Distribution
 

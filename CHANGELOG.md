@@ -12,6 +12,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Distribution packages include installer that places binary in `/usr/local/bin`
 - GitHub Actions now automatically uploads .dmg and .pkg files to releases
 - Both .dmg and .pkg files include checksums for verification
+- **Semantic versioning from git tags** - Version is automatically extracted from git tags (e.g., v1.2.1 → 1.2.1)
+- **Version information in binary** - Added `--version` flag to display version
+- **Help command** - Added `--help` flag to display usage information
+- Version.swift is generated during build with git tag information
+- `make version` target to display current version information
 
 ## [1.1.1] - 2025-06-27
 
