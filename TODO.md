@@ -8,8 +8,8 @@
 
 - [x] Update Homebrew formula with correct SHA256 after first release - Created update script and documentation
 - [ ] Submit to homebrew-core or create custom tap - Formula ready, needs tap repository
-- [ ] Add code signing for distribution outside App Store
-- [ ] Consider notarization for enhanced security
+- [x] Add code signing for distribution outside App Store - Added to Makefile with documentation
+- [x] Consider notarization for enhanced security - Added scripts and GitHub Actions support
 
 ### 0.3. Testing
 

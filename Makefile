@@ -135,6 +135,11 @@ version:
 	@echo "Git tag: $(GIT_TAG)"
 	@echo "Git describe: $(GIT_DESCRIBE)"
 
+# Notarize the binary (requires signing first)
+.PHONY: notarize
+notarize: sign
+	@./scripts/notarize.sh
+
 # Show help
 .PHONY: help
 help:
@@ -145,6 +150,7 @@ help:
 	@echo "  make uninstall - Remove installed binary"
 	@echo "  make test     - Run tests"
 	@echo "  make sign     - Sign the binary (requires CODESIGN_IDENTITY)"
+	@echo "  make notarize - Notarize the binary (requires Apple ID credentials)"
 	@echo "  make dist     - Create distribution package (.pkg and .dmg)"
 	@echo "  make version  - Show version information"
 	@echo "  make help     - Show this help message"
@@ -152,3 +158,6 @@ help:
 	@echo "Environment variables:"
 	@echo "  CODESIGN_IDENTITY - Developer ID for code signing (optional)"
 	@echo "  VERSION           - Override version detection (optional)"
+	@echo "  APPLE_ID          - Apple ID for notarization (optional)"
+	@echo "  TEAM_ID           - Team ID for notarization (optional)"
+	@echo "  NOTARIZATION_PASSWORD - App-specific password (optional)"

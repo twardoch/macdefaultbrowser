@@ -21,8 +21,64 @@ jobs:
       id: version
       run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
     
+    - name: Import Code Signing Certificate
+      if: ${{ secrets.CODESIGN_CERTIFICATE != '' }}
+      env:
+        CODESIGN_CERTIFICATE: ${{ secrets.CODESIGN_CERTIFICATE }}
+        CODESIGN_PASSWORD: ${{ secrets.CODESIGN_PASSWORD }}
+      run: |
+        # Create temporary keychain
+        security create-keychain -p actions temp.keychain
+        security default-keychain -s temp.keychain
+        security unlock-keychain -p actions temp.keychain
+        
+        # Import certificate
+        echo "$CODESIGN_CERTIFICATE" | base64 --decode > certificate.p12
+        security import certificate.p12 -k temp.keychain -P "$CODESIGN_PASSWORD" -T /usr/bin/codesign -T /usr/bin/productsign
+        security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k actions temp.keychain
+        
+        # Clean up certificate file
+        rm certificate.p12
+    
     - name: Build distribution package
+      env:
+        CODESIGN_IDENTITY: ${{ secrets.CODESIGN_IDENTITY }}
       run: VERSION=${{ steps.version.outputs.VERSION }} make dist
+    
+    - name: Notarize distribution
+      if: ${{ secrets.APPLE_ID != '' }}
+      env:
+        APPLE_ID: ${{ secrets.APPLE_ID }}
+        TEAM_ID: ${{ secrets.TEAM_ID }}
+        NOTARIZATION_PASSWORD: ${{ secrets.NOTARIZATION_PASSWORD }}
+      run: |
+        # Notarize the PKG file
+        echo "Notarizing PKG..."
+        xcrun notarytool submit dist/macdefaultbrowser-${{ steps.version.outputs.VERSION }}.pkg \
+          --apple-id "$APPLE_ID" \
+          --team-id "$TEAM_ID" \
+          --password "$NOTARIZATION_PASSWORD" \
+          --wait
+        
+        # Staple the ticket to the PKG
+        echo "Stapling ticket to PKG..."
+        xcrun stapler staple dist/macdefaultbrowser-${{ steps.version.outputs.VERSION }}.pkg
+        
+        # Recreate DMG with stapled PKG
+        echo "Recreating DMG with notarized PKG..."
+        rm -f dist/macdefaultbrowser-${{ steps.version.outputs.VERSION }}.dmg
+        mkdir -p dist/dmg
+        cp dist/macdefaultbrowser-${{ steps.version.outputs.VERSION }}.pkg dist/dmg/
+        hdiutil create -volname "macdefaultbrowser ${{ steps.version.outputs.VERSION }}" \
+          -srcfolder dist/dmg \
+          -ov -format UDZO \
+          dist/macdefaultbrowser-${{ steps.version.outputs.VERSION }}.dmg
+        rm -rf dist/dmg
+    
+    - name: Cleanup keychain
+      if: always() && ${{ secrets.CODESIGN_CERTIFICATE != '' }}
+      run: |
+        security delete-keychain temp.keychain || true
     
     - name: Create release directory
       run: mkdir -p release

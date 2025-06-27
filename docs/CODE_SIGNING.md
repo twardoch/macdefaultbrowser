@@ -166,6 +166,23 @@ Add these secrets to your repository:
 - `TEAM_ID`: Your Apple Developer Team ID
 - `NOTARIZATION_PASSWORD`: App-specific password for notarization
 
+### How to export certificate as base64:
+```bash
+# Export certificate from Keychain
+security export -k ~/Library/Keychains/login.keychain-db \
+  -t identities -f pkcs12 -o certificate.p12 \
+  -P "your-export-password"
+
+# Convert to base64
+base64 -i certificate.p12 -o certificate.b64
+
+# Copy the contents of certificate.b64 to GitHub secrets
+cat certificate.b64 | pbcopy
+
+# Clean up
+rm certificate.p12 certificate.b64
+```
+
 ## Testing Code Signing
 
 Verify the signature:

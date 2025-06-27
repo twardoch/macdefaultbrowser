@@ -26,6 +26,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Added Homebrew installation guide in docs/HOMEBREW.md
 - Created script to update Homebrew formula with correct SHA256 after releases
 - Updated Homebrew formula with instructions and proper build directory
+- **Code signing documentation** - Added comprehensive code signing guide in docs/CODE_SIGNING.md
+- Added code signing support to Makefile with `make sign` target
+- Documented notarization process and GitHub Actions integration
+- **Notarization support** - Added `make notarize` target and scripts/notarize.sh
+- Enhanced GitHub Actions workflow with automatic code signing and notarization
+- Added instructions for exporting certificates for CI/CD
 
 ## [1.1.1] - 2025-06-27
 
