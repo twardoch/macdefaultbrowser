@@ -1,0 +1,8 @@
+// this_file: Sources/macdefaultbrowser/Version.swift.template
+// This file is generated from Version.swift.template during build
+
+/// Version information for macdefaultbrowser
+struct Version {
+    static let version = "VERSION_PLACEHOLDER"
+    static let gitDescribe = "GIT_DESCRIBE_PLACEHOLDER"
+}

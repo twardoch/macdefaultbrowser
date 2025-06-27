@@ -26,6 +26,10 @@ endif
 SWIFT_BUILD_FLAGS = -c release --arch arm64 --arch x86_64
 SWIFT = swift
 
+# Code signing configuration (optional)
+CODESIGN_IDENTITY ?= 
+CODESIGN_FLAGS = --force --options runtime --timestamp
+
 # Default target
 .PHONY: all
 all: build
@@ -70,10 +74,27 @@ uninstall:
 test:
 	$(SWIFT) test
 
+# Sign the binary (optional, requires CODESIGN_IDENTITY)
+.PHONY: sign
+sign: build
+	@if [ -z "$(CODESIGN_IDENTITY)" ]; then \
+		echo "Warning: CODESIGN_IDENTITY not set, skipping code signing"; \
+		echo "To sign, set CODESIGN_IDENTITY environment variable or use:"; \
+		echo "  make sign CODESIGN_IDENTITY=\"Developer ID Application: Your Name (TEAM_ID)\""; \
+	else \
+		echo "Signing $(BUILD_DIR)/$(BINARY_NAME) with identity: $(CODESIGN_IDENTITY)"; \
+		codesign $(CODESIGN_FLAGS) --sign "$(CODESIGN_IDENTITY)" $(BUILD_DIR)/$(BINARY_NAME); \
+		echo "Verifying signature..."; \
+		codesign --verify --verbose $(BUILD_DIR)/$(BINARY_NAME); \
+	fi
+
 # Create distribution package
 .PHONY: dist
 dist: build
 	@echo "Creating distribution package..."
+	@if [ -n "$(CODESIGN_IDENTITY)" ]; then \
+		$(MAKE) sign; \
+	fi
 	@mkdir -p $(DIST_DIR)/pkg_root$(BINDIR)
 	@mkdir -p $(DIST_DIR)/scripts
 	
@@ -123,6 +144,11 @@ help:
 	@echo "  make clean    - Remove build artifacts"
 	@echo "  make uninstall - Remove installed binary"
 	@echo "  make test     - Run tests"
+	@echo "  make sign     - Sign the binary (requires CODESIGN_IDENTITY)"
 	@echo "  make dist     - Create distribution package (.pkg and .dmg)"
 	@echo "  make version  - Show version information"
 	@echo "  make help     - Show this help message"
+	@echo ""
+	@echo "Environment variables:"
+	@echo "  CODESIGN_IDENTITY - Developer ID for code signing (optional)"
+	@echo "  VERSION           - Override version detection (optional)"

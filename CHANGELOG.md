@@ -18,6 +18,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Version.swift is generated during build with git tag information
 - `make version` target to display current version information
 
+### Fixed
+- GitHub Actions build failure - Added missing Version.swift.template to repository
+- Fixed .gitignore to properly exclude only generated Version.swift, not the template
+
+### Documentation
+- Added Homebrew installation guide in docs/HOMEBREW.md
+- Created script to update Homebrew formula with correct SHA256 after releases
+- Updated Homebrew formula with instructions and proper build directory
+
 ## [1.1.1] - 2025-06-27
 
 

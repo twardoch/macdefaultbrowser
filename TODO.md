@@ -2,12 +2,12 @@
 
 ### 0.1. Building
 
-- [ ] `issues/101.txt` read and fix
+- [x] `issues/101.txt` read and fix - Added Version.swift.template to git repository
 
 ### 0.2. Distribution
 
-- [ ] Update Homebrew formula with correct SHA256 after first release
-- [ ] Submit to homebrew-core or create custom tap
+- [x] Update Homebrew formula with correct SHA256 after first release - Created update script and documentation
+- [ ] Submit to homebrew-core or create custom tap - Formula ready, needs tap repository
 - [ ] Add code signing for distribution outside App Store
 - [ ] Consider notarization for enhanced security
 

@@ -12,8 +12,9 @@ DerivedData/
 # Built binary
 macdefaultbrowser
 
-# Generated files
+# Generated files (but not templates)
 Sources/macdefaultbrowser/Version.swift
+!Sources/macdefaultbrowser/Version.swift.template
 
 # macOS
 .DS_Store
