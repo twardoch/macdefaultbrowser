@@ -3,6 +3,7 @@
 ### 0.1. Building
 
 - [x] `issues/101.txt` read and fix - Added Version.swift.template to git repository
+- [x] Fix deprecation warnings - Updated LaunchServicesWrapper to use modern NSWorkspace APIs on macOS 12.0+ with fallback to deprecated APIs for older versions
 
 ### 0.2. Distribution
 
@@ -13,19 +14,22 @@
 
 ### 0.3. Testing
 
-- [ ] Create integration tests for dialog automation
-- [ ] Test on Intel Macs (currently tested on Apple Silicon)
-- [ ] Add CI tests for different macOS versions
-
+- [ ] Comprehensive test suite for BrowserManager
+- [ ] Integration tests with multiple browsers
+- [ ] Test dialog automation functionality  
+- [ ] Cross-platform compatibility testing
+- [ ] Performance benchmarking
 
 ### 0.4. Documentation
 
-- [ ] Add license headers to all source files
-- [ ] Document accessibility permissions requirements in README
-- [ ] Create troubleshooting guide for common issues
+- [ ] Update README with usage examples
+- [ ] Create man page for CLI tool
+- [ ] Document dialog automation setup
+- [ ] Add troubleshooting guide
 
-### 0.5. Code Quality
+### 0.5. Future Features
 
-- [ ] Address deprecated API warnings (migrate to NSWorkspace methods)
-- [ ] Add more comprehensive error messages
-- [ ] Improve test coverage
+- [ ] GUI version consideration
+- [ ] Additional browser metadata display
+- [ ] Batch operations support
+- [ ] Configuration file support

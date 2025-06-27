@@ -63,4 +63,4 @@ llms.txt
 .netrc
 
 # Keep reference directory
-!reference/
+!reference/.specstory/

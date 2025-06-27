@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Distribution packages include installer that places binary in `/usr/local/bin`
 - GitHub Actions now automatically uploads .dmg and .pkg files to releases
 - Both .dmg and .pkg files include checksums for verification
+- **Dynamic version detection** - Version is now extracted from git tags during build
 - **Semantic versioning from git tags** - Version is automatically extracted from git tags (e.g., v1.2.1 → 1.2.1)
 - **Version information in binary** - Added `--version` flag to display version
 - **Help command** - Added `--help` flag to display usage information
@@ -21,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Fixed
 - GitHub Actions build failure - Added missing Version.swift.template to repository
 - Fixed .gitignore to properly exclude only generated Version.swift, not the template
+- **Deprecation warnings** - Updated LaunchServicesWrapper to use modern NSWorkspace APIs on macOS 12.0+ with backward compatibility fallback for older macOS versions
 
 ### Documentation
 - Added Homebrew installation guide in docs/HOMEBREW.md
@@ -35,8 +37,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [1.1.1] - 2025-06-27
 
-
-### Added
+### Changed
 
 - Initial Swift implementation of macdefaultbrowser
 - Core functionality to list all available browsers
