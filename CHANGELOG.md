@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Build output now goes to `build/` directory instead of root
+- New `make dist` target creates installable .pkg and .dmg files
+- Distribution packages include installer that places binary in `/usr/local/bin`
+- GitHub Actions now automatically uploads .dmg and .pkg files to releases
+- Both .dmg and .pkg files include checksums for verification
+
 ## [1.1.1] - 2025-06-27
 
 

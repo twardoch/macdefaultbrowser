@@ -3,6 +3,7 @@
 # Swift build artifacts
 .build/
 build/
+dist/
 DerivedData/
 *.xcodeproj
 *.xcworkspace

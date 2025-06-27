@@ -17,22 +17,32 @@ jobs:
     - name: Select Xcode
       run: sudo xcode-select -s /Applications/Xcode.app
     
-    - name: Build universal binary
-      run: make build
+    - name: Extract version from tag
+      id: version
+      run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+    
+    - name: Build distribution package
+      run: VERSION=${{ steps.version.outputs.VERSION }} make dist
     
     - name: Create release directory
       run: mkdir -p release
     
-    - name: Package binary
+    - name: Copy distribution files
       run: |
-        cp macdefaultbrowser release/
+        cp dist/macdefaultbrowser-${{ steps.version.outputs.VERSION }}.dmg release/
+        cp dist/macdefaultbrowser-${{ steps.version.outputs.VERSION }}.pkg release/
+        # Also create tar.gz and zip for backward compatibility
+        cp build/macdefaultbrowser release/
         cd release
         tar -czf macdefaultbrowser-${GITHUB_REF_NAME}.tar.gz macdefaultbrowser
         zip macdefaultbrowser-${GITHUB_REF_NAME}.zip macdefaultbrowser
+        rm macdefaultbrowser
     
     - name: Generate checksums
       run: |
         cd release
+        shasum -a 256 macdefaultbrowser-${{ steps.version.outputs.VERSION }}.dmg > macdefaultbrowser-${{ steps.version.outputs.VERSION }}.dmg.sha256
+        shasum -a 256 macdefaultbrowser-${{ steps.version.outputs.VERSION }}.pkg > macdefaultbrowser-${{ steps.version.outputs.VERSION }}.pkg.sha256
         shasum -a 256 macdefaultbrowser-${GITHUB_REF_NAME}.tar.gz > macdefaultbrowser-${GITHUB_REF_NAME}.tar.gz.sha256
         shasum -a 256 macdefaultbrowser-${GITHUB_REF_NAME}.zip > macdefaultbrowser-${GITHUB_REF_NAME}.zip.sha256
     
@@ -85,4 +95,44 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./release/macdefaultbrowser-${{ github.ref_name }}.zip.sha256
         asset_name: macdefaultbrowser-${{ github.ref_name }}.zip.sha256
+        asset_content_type: text/plain
+    
+    - name: Upload DMG
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./release/macdefaultbrowser-${{ steps.version.outputs.VERSION }}.dmg
+        asset_name: macdefaultbrowser-${{ steps.version.outputs.VERSION }}.dmg
+        asset_content_type: application/x-apple-diskimage
+    
+    - name: Upload PKG
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./release/macdefaultbrowser-${{ steps.version.outputs.VERSION }}.pkg
+        asset_name: macdefaultbrowser-${{ steps.version.outputs.VERSION }}.pkg
+        asset_content_type: application/x-newton-compatible-pkg
+    
+    - name: Upload DMG checksum
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./release/macdefaultbrowser-${{ steps.version.outputs.VERSION }}.dmg.sha256
+        asset_name: macdefaultbrowser-${{ steps.version.outputs.VERSION }}.dmg.sha256
+        asset_content_type: text/plain
+    
+    - name: Upload PKG checksum
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./release/macdefaultbrowser-${{ steps.version.outputs.VERSION }}.pkg.sha256
+        asset_name: macdefaultbrowser-${{ steps.version.outputs.VERSION }}.pkg.sha256
         asset_content_type: text/plain
