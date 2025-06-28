@@ -3881,3 +3881,875 @@ _**Assistant**_
 
 ---
 
+I'll implement hatch versioning with git tag-based semver for the `macdefaultbrowsy` project. Let me update the `pyproject.toml` file based on your reference:
+
+---
+
+```diff
++ # this_file: pyproject.toml
++ #==============================================================================
++ # MACDEFAULTBROWSY PACKAGE CONFIGURATION
++ # This pyproject.toml defines the package metadata, dependencies, build system,
++ # and development environment for the macdefaultbrowsy package.
++ #==============================================================================
++ 
++ #------------------------------------------------------------------------------
++ # BUILD SYSTEM CONFIGURATION
++ # Defines the tools required to build the package and the build backend.
++ #------------------------------------------------------------------------------
+  [build-system]
+- requires = ["setuptools>=61.0"]
+- build-backend = "setuptools.build_meta"
+- 
++ # Hatchling is a modern build backend for Python packaging
++ # hatch-vcs integrates with version control systems for versioning
++ requires = [
++     "hatchling>=1.27.0",
++     "hatch-vcs>=0.4.0",
++ ]
++ build-backend = "hatchling.build"
++ 
++ #------------------------------------------------------------------------------
++ # PROJECT METADATA
++ # Core package information used by PyPI and package managers.
++ #------------------------------------------------------------------------------
+  [project]
+  name = "macdefaultbrowsy"
+- version = "0.1.0"
+- authors = [
+-   { name="Adam Twardoch", email="adam+github@twardoch.com" },
+- ]
+  description = "A Python port of macdefaultbrowser to manage the default web browser on macOS."
+  readme = "README.md"
+  requires-python = ">=3.8"
++ keywords = ["macos", "browser", "default", "cli", "automation"]
++ dynamic = ["version"]  # Version set dynamically from git tags
+  classifiers = [
++     "Development Status :: 4 - Beta",
+      "Programming Language :: Python :: 3",
++     "Programming Language :: Python :: 3.8",
++     "Programming Language :: Python :: 3.9",
++     "Programming Language :: Python :: 3.10",
++     "Programming Language :: Python :: 3.11",
++     "Programming Language :: Python :: 3.12",
+      "License :: OSI Approved :: MIT License",
+      "Operating System :: MacOS",
++     "Intended Audience :: Developers",
++     "Intended Audience :: End Users/Desktop",
++     "Topic :: System :: Systems Administration",
++     "Topic :: Utilities",
+  ]
++ 
+  dependencies = [
+      "pyobjc-framework-CoreServices",
+```
+
+```diff
+  ]
+  
++ # Author information
++ [[project.authors]]
++ name = "Your Name"
++ email = "your.email@example.com"
++ 
++ # License information
++ [project.license]
++ text = "MIT"
++ 
++ # Project URLs
++ [project.urls]
++ Documentation = "https://github.com/twardoch/macdefaultbrowser#readme"
++ Issues = "https://github.com/twardoch/macdefaultbrowser/issues"
++ Source = "https://github.com/twardoch/macdefaultbrowser"
++ 
++ #------------------------------------------------------------------------------
++ # OPTIONAL DEPENDENCIES
++ # Additional dependencies for optional features, development, and testing.
++ #------------------------------------------------------------------------------
++ [project.optional-dependencies]
++ 
++ # Development tools
++ dev = [
++     "pre-commit>=4.1.0",
++     "ruff>=0.9.7",
++     "mypy>=1.15.0",
++     "pyupgrade>=3.19.1",
++ ]
++ 
++ # Testing tools and frameworks
++ test = [
++     "pytest>=8.3.4",
++     "pytest-cov>=6.0.0",
++     "coverage[toml]>=7.6.12",
++ ]
++ 
++ # All optional dependencies combined
++ all = ["dev", "test"]
++ 
++ #------------------------------------------------------------------------------
++ # COMMAND-LINE SCRIPTS
++ # Entry points for command-line executables installed with the package.
++ #------------------------------------------------------------------------------
+  [project.scripts]
+  macdefaultbrowsy = "macdefaultbrowsy.__main__:cli"
++ 
++ #------------------------------------------------------------------------------
++ # HATCH BUILD CONFIGURATION
++ # Configures the build process, specifying which packages to include and
++ # how to handle versioning.
++ #------------------------------------------------------------------------------
++ [tool.hatch.build]
++ # Include package data files
++ include = [
++     "macdefaultbrowsy/py.typed",
++ ]
++ exclude = ["**/__pycache__", "**/.pytest_cache", "**/.mypy_cache"]
++ 
++ [tool.hatch.build.targets.wheel]
++ packages = ["macdefaultbrowsy"]
++ reproducible = true
++ 
++ # Version control system hook configuration
++ # Automatically updates the version file from git tags
++ [tool.hatch.build.hooks.vcs]
++ version-file = "macdefaultbrowsy/__version__.py"
++ 
++ # Version source configuration
++ [tool.hatch.version]
++ source = "vcs"  # Get version from git tags
++ 
++ # Metadata handling configuration
++ [tool.hatch.metadata]
++ allow-direct-references = true
++ 
++ #------------------------------------------------------------------------------
++ # DEVELOPMENT ENVIRONMENTS
++ #------------------------------------------------------------------------------
++ [tool.hatch.envs.default]
++ features = ["dev", "test"]
++ 
++ # Commands available in the default environment
++ [tool.hatch.envs.default.scripts]
++ # Run tests with optional arguments
++ test = "pytest {args:tests}"
++ # Run tests with coverage reporting
++ test-cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=macdefaultbrowsy --cov=tests {args:tests}"
++ # Run type checking
++ type-check = "mypy macdefaultbrowsy tests"
++ # Run linting and formatting
++ lint = ["ruff check macdefaultbrowsy tests", "ruff format macdefaultbrowsy tests"]
++ # Format and fix style issues
++ fmt = ["ruff format macdefaultbrowsy tests", "ruff check --fix macdefaultbrowsy tests"]
++ fix = ["ruff check --fix --unsafe-fixes macdefaultbrowsy tests", "ruff format macdefaultbrowsy tests"]
++ 
++ #------------------------------------------------------------------------------
++ # SPECIALIZED ENVIRONMENTS
++ # Additional environments for specific development tasks.
++ #------------------------------------------------------------------------------
++ 
++ # Dedicated environment for linting and code quality checks
++ [tool.hatch.envs.lint]
++ detached = true
++ features = ["dev"]
++ 
++ # Linting environment commands
++ [tool.hatch.envs.lint.scripts]
++ # Type checking with automatic type installation
++ typing = "mypy --install-types --non-interactive {args:macdefaultbrowsy tests}"
++ # Check style and format code
++ style = ["ruff check {args:.}", "ruff format {args:.}"]
++ # Format and fix style issues
++ fmt = ["ruff format {args:.}", "ruff check --fix {args:.}"]
++ fix = ["ruff check --fix --unsafe-fixes {args:.}", "ruff format {args:.}"]
++ # Run all ops
++ all = ["style", "typing", "fix"]
++ 
++ # Dedicated environment for testing
++ [tool.hatch.envs.test]
++ features = ["test"]
++ 
++ # Testing environment commands
++ [tool.hatch.envs.test.scripts]
++ # Run tests
++ test = "python -m pytest {args:tests}"
++ # Run tests with coverage
++ test-cov = "python -m pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=macdefaultbrowsy --cov=tests {args:tests}"
++ 
++ #------------------------------------------------------------------------------
++ # CODE QUALITY TOOLS
++ # Configuration for linting, formatting, and code quality enforcement.
++ #------------------------------------------------------------------------------
++ 
++ #------------------------------------------------------------------------------
++ # COVERAGE CONFIGURATION
++ # Settings for test coverage measurement and reporting.
++ #------------------------------------------------------------------------------
++ 
++ # Path mapping for coverage in different environments
++ [tool.coverage.paths]
++ macdefaultbrowsy = ["macdefaultbrowsy", "*/macdefaultbrowsy/macdefaultbrowsy"]
++ tests = ["tests", "*/macdefaultbrowsy/tests"]
++ 
++ # Coverage report configuration
++ [tool.coverage.report]
++ # Lines to exclude from coverage reporting
++ exclude_lines = [
++     "no cov",
++     "if __name__ == .__main__.:",
++     "if TYPE_CHECKING:",
++     "pass",
++     "raise NotImplementedError",
++     "raise ImportError",
++     "except ImportError",
++     "except KeyError",
++     "except AttributeError",
++     "except NotImplementedError",
++ ]
++ 
++ [tool.coverage.run]
++ source_pkgs = ["macdefaultbrowsy", "tests"]
++ branch = true
++ parallel = true
++ omit = [
++     "macdefaultbrowsy/__version__.py",
++ ]
++ 
++ #------------------------------------------------------------------------------
++ # MYPY CONFIGURATION
++ # Configuration for type checking with mypy.
++ #------------------------------------------------------------------------------
++ 
++ [tool.mypy]
++ python_version = "3.8"
++ warn_return_any = true
++ warn_unused_configs = true
++ disallow_untyped_defs = true
++ disallow_incomplete_defs = true
++ check_untyped_defs = true
++ disallow_untyped_decorators = true
++ no_implicit_optional = true
++ warn_redundant_casts = true
++ warn_unused_ignores = true
++ warn_no_return = true
++ warn_unreachable = true
++ 
++ [[tool.mypy.overrides]]
++ module = ["tests.*"]
++ disallow_untyped_defs = false
++ disallow_incomplete_defs = false
++ 
++ #------------------------------------------------------------------------------
++ # PYTEST CONFIGURATION
++ # Configuration for pytest, including markers and options.
++ #------------------------------------------------------------------------------
++ 
++ [tool.pytest.ini_options]
++ addopts = "-v --durations=10"
++ console_output_style = "progress"
++ filterwarnings = ["ignore::DeprecationWarning", "ignore::UserWarning"]
++ log_cli = true
++ log_cli_level = "INFO"
++ markers = [
++     "unit: mark a test as a unit test",
++     "integration: mark a test as an integration test",
++ ]
++ norecursedirs = [
++     ".*",
++     "build",
++     "dist",
++     "venv",
++     "__pycache__",
++     "*.egg-info",
++ ]
++ python_classes = ["Test*"]
++ python_files = ["test_*.py"]
++ python_functions = ["test_*"]
++ testpaths = ["tests"]
++ 
++ #------------------------------------------------------------------------------
++ # RUFF CONFIGURATION
++ # Configuration for Ruff, including linter and formatter settings.
++ #------------------------------------------------------------------------------
++ 
++ # Ruff linter and formatter configuration
++ [tool.ruff]
++ target-version = "py38"
++ line-length = 79
++ 
++ # Linting rules configuration
++ [tool.ruff.lint]
++ select = [
++     "E",    # pycodestyle errors
++     "W",    # pycodestyle warnings
++     "F",    # pyflakes
++     "I",    # isort
++     "B",    # flake8-bugbear
++     "C4",   # flake8-comprehensions
++     "UP",   # pyupgrade
++     "RUF",  # Ruff-specific rules
++ ]
++ ignore = [
++     "E501",  # Line too long (handled by formatter)
++ ]
++ unfixable = [
++     "F401",  # Don't automatically remove unused imports
++ ]
++ 
++ # isort configuration within Ruff
++ [tool.ruff.lint.isort]
++ known-first-party = ["macdefaultbrowsy"]
++ 
++ # Per-file rule exceptions
++ [tool.ruff.lint.per-file-ignores]
++ "tests/**/*" = [
++     "S101",  # Allow assertions in tests
++ ] 
+```
+
+---
+
+
+
+---
+
+Now I'll create the `py.typed` file for better type checking support:
+
+---
+
+```diff
+- 
++ # this_file: macdefaultbrowsy/py.typed
++ # This file indicates that the macdefaultbrowsy package supports type checking
++ # as defined in PEP 561: https://www.python.org/dev/peps/pep-0561/ 
+```
+
+---
+
+
+
+---
+
+Let me test the hatch versioning setup by checking the current git status and testing the build:
+
+---
+
+```bash
+cd macdefaultbrowsy && git status
+```
+
+```
+adam@Hamlet macdefaultbrowser % cd macdefaultbrowsy && git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        macdefaultbrowsy/py.typed
+
+nothing added to commit but untracked files present (use "git add" to track)
+adam@Hamlet macdefaultbrowsy %
+```
+
+---
+
+
+
+---
+
+```bash
+git tag --list
+```
+
+```
+adam@Hamlet macdefaultbrowsy % git tag --list
+v1.0.1
+v1.1.0
+v1.1.1
+v1.1.2
+v1.2.0
+v1.2.1
+v1.2.2
+v1.3.0
+v1.3.1
+v1.6.0
+adam@Hamlet macdefaultbrowsy %
+```
+
+---
+
+
+
+---
+
+```bash
+pip install hatch
+```
+
+```
+adam@Hamlet macdefaultbrowsy % pip install hatch
+Requirement already satisfied: hatch in /usr/local/lib/python3.10/site-packages 
+(1.14.0)
+Requirement already satisfied: click>=8.0.6 in /usr/local/lib/python3.10/site-pa
+ckages (from hatch) (8.1.8)
+Requirement already satisfied: hatchling>=1.26.3 in /usr/local/lib/python3.10/si
+te-packages (from hatch) (1.27.0)
+Requirement already satisfied: httpx>=0.22.0 in /usr/local/lib/python3.10/site-p
+ackages (from hatch) (0.28.1)
+Requirement already satisfied: hyperlink>=21.0.0 in /usr/local/lib/python3.10/si
+te-packages (from hatch) (21.0.0)
+Requirement already satisfied: keyring>=23.5.0 in /usr/local/lib/python3.10/site
+-packages (from hatch) (25.6.0)
+Requirement already satisfied: packaging>=23.2 in /usr/local/lib/python3.10/site
+-packages (from hatch) (24.2)
+Requirement already satisfied: pexpect~=4.8 in /usr/local/lib/python3.10/site-pa
+ckages (from hatch) (4.9.0)
+Requirement already satisfied: platformdirs>=2.5.0 in /usr/local/lib/python3.10/
+site-packages (from hatch) (4.3.6)
+Requirement already satisfied: rich>=11.2.0 in /usr/local/lib/python3.10/site-pa
+ckages (from hatch) (13.9.4)
+Requirement already satisfied: shellingham>=1.4.0 in /usr/local/lib/python3.10/s
+ite-packages (from hatch) (1.5.4)
+Requirement already satisfied: tomli-w>=1.0 in /usr/local/lib/python3.10/site-pa
+ckages (from hatch) (1.2.0)
+Requirement already satisfied: tomlkit>=0.11.1 in /usr/local/lib/python3.10/site
+-packages (from hatch) (0.13.2)
+Requirement already satisfied: userpath~=1.7 in /usr/local/lib/python3.10/site-p
+ackages (from hatch) (1.9.2)
+Requirement already satisfied: uv>=0.1.35 in /usr/local/lib/python3.10/site-pack
+ages (from hatch) (0.5.24)
+Requirement already satisfied: virtualenv>=20.26.6 in /usr/local/lib/python3.10/
+site-packages (from hatch) (20.29.1)
+Requirement already satisfied: zstandard<1 in /usr/local/lib/python3.10/site-pac
+kages (from hatch) (0.23.0)
+Requirement already satisfied: pathspec>=0.10.1 in /usr/local/lib/python3.10/sit
+e-packages (from hatchling>=1.26.3->hatch) (0.12.1)
+Requirement already satisfied: pluggy>=1.0.0 in /usr/local/lib/python3.10/site-p
+ackages (from hatchling>=1.26.3->hatch) (1.5.0)
+Requirement already satisfied: tomli>=1.2.2 in /usr/local/lib/python3.10/site-pa
+ckages (from hatchling>=1.26.3->hatch) (2.2.1)
+Requirement already satisfied: trove-classifiers in /usr/local/lib/python3.10/si
+te-packages (from hatchling>=1.26.3->hatch) (2025.1.15.22)
+Requirement already satisfied: anyio in /usr/local/lib/python3.10/site-packages 
+(from httpx>=0.22.0->hatch) (4.8.0)
+Requirement already satisfied: certifi in /usr/local/lib/python3.10/site-package
+s (from httpx>=0.22.0->hatch) (2024.12.14)
+Requirement already satisfied: httpcore==1.* in /usr/local/lib/python3.10/site-p
+ackages (from httpx>=0.22.0->hatch) (1.0.7)
+Requirement already satisfied: idna in /usr/local/lib/python3.10/site-packages (
+from httpx>=0.22.0->hatch) (3.10)
+Requirement already satisfied: h11<0.15,>=0.13 in /usr/local/lib/python3.10/site
+-packages (from httpcore==1.*->httpx>=0.22.0->hatch) (0.14.0)
+Requirement already satisfied: importlib_metadata>=4.11.4 in /usr/local/lib/pyth
+on3.10/site-packages (from keyring>=23.5.0->hatch) (8.6.1)
+Requirement already satisfied: jaraco.classes in /usr/local/lib/python3.10/site-
+packages (from keyring>=23.5.0->hatch) (3.4.0)
+Requirement already satisfied: jaraco.functools in /usr/local/lib/python3.10/sit
+e-packages (from keyring>=23.5.0->hatch) (4.1.0)
+Requirement already satisfied: jaraco.context in /usr/local/lib/python3.10/site-
+packages (from keyring>=23.5.0->hatch) (6.0.1)
+Requirement already satisfied: ptyprocess>=0.5 in /usr/local/lib/python3.10/site
+-packages (from pexpect~=4.8->hatch) (0.7.0)
+Requirement already satisfied: markdown-it-py>=2.2.0 in /usr/local/lib/python3.1
+0/site-packages (from rich>=11.2.0->hatch) (3.0.0)
+Requirement already satisfied: pygments<3.0.0,>=2.13.0 in /usr/local/lib/python3
+.10/site-packages (from rich>=11.2.0->hatch) (2.19.1)
+Requirement already satisfied: typing-extensions<5.0,>=4.0.0 in /usr/local/lib/p
+ython3.10/site-packages (from rich>=11.2.0->hatch) (4.12.2)
+Requirement already satisfied: distlib<1,>=0.3.7 in /usr/local/lib/python3.10/si
+te-packages (from virtualenv>=20.26.6->hatch) (0.3.9)
+Requirement already satisfied: filelock<4,>=3.12.2 in /usr/local/lib/python3.10/
+site-packages (from virtualenv>=20.26.6->hatch) (3.17.0)
+Requirement already satisfied: zipp>=3.20 in /usr/local/lib/python3.10/site-pack
+ages (from importlib_metadata>=4.11.4->keyring>=23.5.0->hatch) (3.21.0)
+Requirement already satisfied: mdurl~=0.1 in /usr/local/lib/python3.10/site-pack
+ages (from markdown-it-py>=2.2.0->rich>=11.2.0->hatch) (0.1.2)
+Requirement already satisfied: exceptiongroup>=1.0.2 in /usr/local/lib/python3.1
+0/site-packages (from anyio->httpx>=0.22.0->hatch) (1.2.2)
+Requirement already satisfied: sniffio>=1.1 in /usr/local/lib/python3.10/site-pa
+ckages (from anyio->httpx>=0.22.0->hatch) (1.3.1)
+Requirement already satisfied: more-itertools in /usr/local/lib/python3.10/site-
+packages (from jaraco.classes->keyring>=23.5.0->hatch) (10.6.0)
+Requirement already satisfied: backports.tarfile in /usr/local/lib/python3.10/si
+te-packages (from jaraco.context->keyring>=23.5.0->hatch) (1.2.0)
+
+[notice] A new release of pip is available: 25.0.1 -> 25.1.1
+[notice] To update, run: python3.10 -m pip install --upgrade pip
+adam@Hamlet macdefaultbrowsy %
+```
+
+---
+
+
+
+---
+
+```bash
+hatch version
+```
+
+```
+adam@Hamlet macdefaultbrowsy % hatch version
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /usr/local/lib/python3.10/site-packages/hatch/cli/__init__.py:221 in main    │
+│                                                                              │
+│   218                                                                        │
+│   219 def main():  # no cov                                                  │
+│   220 │   try:                                                               │
+│ ❱ 221 │   │   hatch(prog_name='hatch', windows_expand_args=False)            │
+│   222 │   except Exception:  # noqa: BLE001                                  │
+│   223 │   │   import sys                                                     │
+│   224                                                                        │
+│                                                                              │
+│ /usr/local/lib/python3.10/site-packages/click/core.py:1161 in __call__       │
+│                                                                              │
+│ /usr/local/lib/python3.10/site-packages/click/core.py:1082 in main           │
+│                                                                              │
+│ /usr/local/lib/python3.10/site-packages/click/core.py:1697 in invoke         │
+│                                                                              │
+│ /usr/local/lib/python3.10/site-packages/click/core.py:1443 in invoke         │
+│                                                                              │
+│ /usr/local/lib/python3.10/site-packages/click/core.py:788 in invoke          │
+│                                                                              │
+│ /usr/local/lib/python3.10/site-packages/click/decorators.py:45 in new_func   │
+│                                                                              │
+│ /usr/local/lib/python3.10/site-packages/hatch/cli/version/__init__.py:37 in  │
+│ version                                                                      │
+│                                                                              │
+│   34 │   │   ) or dependencies_in_sync(app.project.metadata.build.requires_c │
+│   35 │   │   │   source = app.project.metadata.hatch.version.source          │
+│   36 │   │   │                                                               │
+│ ❱ 37 │   │   │   version_data = source.get_version_data()                    │
+│   38 │   │   │   original_version = version_data['version']                  │
+│   39 │   │   │                                                               │
+│   40 │   │   │   if not desired_version:                                     │
+│                                                                              │
+│ /usr/local/lib/python3.10/site-packages/hatch_vcs/version_source.py:68 in    │
+│ get_version_data                                                             │
+│                                                                              │
+│   65 │   │   return config                                                   │
+│   66 │                                                                       │
+│   67 │   def get_version_data(self):                                         │
+│ ❱ 68 │   │   from setuptools_scm import get_version                          │
+│   69 │   │                                                                   │
+│   70 │   │   version = get_version(**self.construct_setuptools_scm_config()) │
+│   71 │   │   return {'version': version}                                     │
+│                                                                              │
+│ /usr/local/lib/python3.10/site-packages/setuptools_scm/__init__.py:8 in      │
+│ <module>                                                                     │
+│                                                                              │
+│    5                                                                         │
+│    6 from __future__ import annotations                                      │
+│    7                                                                         │
+│ ❱  8 from ._config import DEFAULT_LOCAL_SCHEME                               │
+│    9 from ._config import DEFAULT_VERSION_SCHEME                             │
+│   10 from ._config import Configuration                                      │
+│   11 from ._get_version_impl import _get_version                             │
+│                                                                              │
+│ /usr/local/lib/python3.10/site-packages/setuptools_scm/_config.py:17 in      │
+│ <module>                                                                     │
+│                                                                              │
+│    14                                                                        │
+│    15 from . import _log                                                     │
+│    16 from . import _types as _t                                             │
+│ ❱  17 from ._integration.pyproject_reading import (                          │
+│    18 │   get_args_for_pyproject as _get_args_for_pyproject,                 │
+│    19 )                                                                      │
+│    20 from ._integration.pyproject_reading import read_pyproject as _read_py │
+│                                                                              │
+│ /usr/local/lib/python3.10/site-packages/setuptools_scm/_integration/pyprojec │
+│ t_reading.py:9 in <module>                                                   │
+│                                                                              │
+│    6 from typing import NamedTuple                                           │
+│    7                                                                         │
+│    8 from .. import _log                                                     │
+│ ❱  9 from .setuptools import read_dist_name_from_setup_cfg                   │
+│   10 from .toml import TOML_RESULT                                           │
+│   11 from .toml import read_toml_content                                     │
+│   12                                                                         │
+│                                                                              │
+│ /usr/local/lib/python3.10/site-packages/setuptools_scm/_integration/setuptoo │
+│ ls.py:10 in <module>                                                         │
+│                                                                              │
+│     7 from typing import Any                                                 │
+│     8 from typing import Callable                                            │
+│     9                                                                        │
+│ ❱  10 import setuptools                                                      │
+│    11                                                                        │
+│    12 from .. import _config                                                 │
+│    13                                                                        │
+│                                                                              │
+│ /usr/local/lib/python3.10/site-packages/setuptools/__init__.py:22 in         │
+│ <module>                                                                     │
+│                                                                              │
+│    19 # workaround for #4476                                                 │
+│    20 sys.modules.pop('backports', None)                                     │
+│    21                                                                        │
+│ ❱  22 import _distutils_hack.override  # noqa: F401                          │
+│    23                                                                        │
+│    24 from . import logging, monkey                                          │
+│    25 from .depends import Require                                           │
+│                                                                              │
+│ /usr/local/Cellar/python@3.10/3.10.17/Frameworks/Python.framework/Versions/3 │
+│ .10/lib/python3.10/site-packages/_distutils_hack/override.py:1 in <module>   │
+│                                                                              │
+│ ❱ 1 __import__('_distutils_hack').do_override()                              │
+│   2                                                                          │
+│                                                                              │
+│ /usr/local/Cellar/python@3.10/3.10.17/Frameworks/Python.framework/Versions/3 │
+│ .10/lib/python3.10/site-packages/_distutils_hack/__init__.py:89 in           │
+│ do_override                                                                  │
+│                                                                              │
+│    86 │   """                                                                │
+│    87 │   if enabled():                                                      │
+│    88 │   │   warn_distutils_present()                                       │
+│ ❱  89 │   │   ensure_local_distutils()                                       │
+│    90                                                                        │
+│    91                                                                        │
+│    92 class _TrivialRe:                                                      │
+│                                                                              │
+│ /usr/local/Cellar/python@3.10/3.10.17/Frameworks/Python.framework/Versions/3 │
+│ .10/lib/python3.10/site-packages/_distutils_hack/__init__.py:76 in           │
+│ ensure_local_distutils                                                       │
+│                                                                              │
+│    73 │                                                                      │
+│    74 │   # check that submodules load as expected                           │
+│    75 │   core = importlib.import_module('distutils.core')                   │
+│ ❱  76 │   assert '_distutils' in core.__file__, core.__file__                │
+│    77 │   assert 'setuptools._distutils.log' not in sys.modules              │
+│    78                                                                        │
+│    79                                                                        │
+╰──────────────────────────────────────────────────────────────────────────────╯
+AssertionError: 
+/usr/local/Cellar/python@3.10/3.10.17/Frameworks/Python.framework/Versions/3.10/
+lib/python3.10/distutils/core.py
+adam@Hamlet macdefaultbrowsy %
+```
+
+---
+
+
+
+---
+
+```bash
+pip install setuptools-scm
+```
+
+```
+Requirement already satisfied: setuptools-scm in /usr/local/lib/python3.10/site-
+packages (8.1.0)
+Requirement already satisfied: packaging>=20 in /usr/local/lib/python3.10/site-p
+ackages (from setuptools-scm) (24.2)
+Requirement already satisfied: setuptools in /usr/local/lib/python3.10/site-pack
+ages (from setuptools-scm) (78.1.0)
+Requirement already satisfied: tomli>=1 in /usr/local/lib/python3.10/site-packag
+es (from setuptools-scm) (2.2.1)
+
+[notice] A new release of pip is available: 25.0.1 -> 25.1.1
+[notice] To update, run: python3.10 -m pip install --upgrade pip
+
+```
+
+---
+
+_**User**_
+
+you use use uv pip
+
+---
+
+_**Assistant**_
+
+
+
+---
+
+I'll use `uv pip` instead. Let me try the hatch version command again and use `uv` for any package installations:
+
+---
+
+```bash
+hatch version
+```
+
+```
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /usr/local/lib/python3.10/site-packages/hatch/cli/__init__.py:221 in main    │
+│                                                                              │
+│   218                                                                        │
+│   219 def main():  # no cov                                                  │
+│   220 │   try:                                                               │
+│ ❱ 221 │   │   hatch(prog_name='hatch', windows_expand_args=False)            │
+│   222 │   except Exception:  # noqa: BLE001                                  │
+│   223 │   │   import sys                                                     │
+│   224                                                                        │
+│                                                                              │
+│ /usr/local/lib/python3.10/site-packages/click/core.py:1161 in __call__       │
+│                                                                              │
+│ /usr/local/lib/python3.10/site-packages/click/core.py:1082 in main           │
+│                                                                              │
+│ /usr/local/lib/python3.10/site-packages/click/core.py:1697 in invoke         │
+│                                                                              │
+│ /usr/local/lib/python3.10/site-packages/click/core.py:1443 in invoke         │
+│                                                                              │
+│ /usr/local/lib/python3.10/site-packages/click/core.py:788 in invoke          │
+│                                                                              │
+│ /usr/local/lib/python3.10/site-packages/click/decorators.py:45 in new_func   │
+│                                                                              │
+│ /usr/local/lib/python3.10/site-packages/hatch/cli/version/__init__.py:37 in  │
+│ version                                                                      │
+│                                                                              │
+│   34 │   │   ) or dependencies_in_sync(app.project.metadata.build.requires_c │
+│   35 │   │   │   source = app.project.metadata.hatch.version.source          │
+│   36 │   │   │                                                               │
+│ ❱ 37 │   │   │   version_data = source.get_version_data()                    │
+│   38 │   │   │   original_version = version_data['version']                  │
+│   39 │   │   │                                                               │
+│   40 │   │   │   if not desired_version:                                     │
+│                                                                              │
+│ /usr/local/lib/python3.10/site-packages/hatch_vcs/version_source.py:68 in    │
+│ get_version_data                                                             │
+│                                                                              │
+│   65 │   │   return config                                                   │
+│   66 │                                                                       │
+│   67 │   def get_version_data(self):                                         │
+│ ❱ 68 │   │   from setuptools_scm import get_version                          │
+│   69 │   │                                                                   │
+│   70 │   │   version = get_version(**self.construct_setuptools_scm_config()) │
+│   71 │   │   return {'version': version}                                     │
+│                                                                              │
+│ /usr/local/lib/python3.10/site-packages/setuptools_scm/__init__.py:8 in      │
+│ <module>                                                                     │
+│                                                                              │
+│    5                                                                         │
+│    6 from __future__ import annotations                                      │
+│    7                                                                         │
+│ ❱  8 from ._config import DEFAULT_LOCAL_SCHEME                               │
+│    9 from ._config import DEFAULT_VERSION_SCHEME                             │
+│   10 from ._config import Configuration                                      │
+│   11 from ._get_version_impl import _get_version                             │
+│                                                                              │
+│ /usr/local/lib/python3.10/site-packages/setuptools_scm/_config.py:17 in      │
+│ <module>                                                                     │
+│                                                                              │
+│    14                                                                        │
+│    15 from . import _log                                                     │
+│    16 from . import _types as _t                                             │
+│ ❱  17 from ._integration.pyproject_reading import (                          │
+│    18 │   get_args_for_pyproject as _get_args_for_pyproject,                 │
+│    19 )                                                                      │
+│    20 from ._integration.pyproject_reading import read_pyproject as _read_py │
+│                                                                              │
+│ /usr/local/lib/python3.10/site-packages/setuptools_scm/_integration/pyprojec │
+│ t_reading.py:9 in <module>                                                   │
+│                                                                              │
+│    6 from typing import NamedTuple                                           │
+│    7                                                                         │
+│    8 from .. import _log                                                     │
+│ ❱  9 from .setuptools import read_dist_name_from_setup_cfg                   │
+│   10 from .toml import TOML_RESULT                                           │
+│   11 from .toml import read_toml_content                                     │
+│   12                                                                         │
+│                                                                              │
+│ /usr/local/lib/python3.10/site-packages/setuptools_scm/_integration/setuptoo │
+│ ls.py:10 in <module>                                                         │
+│                                                                              │
+│     7 from typing import Any                                                 │
+│     8 from typing import Callable                                            │
+│     9                                                                        │
+│ ❱  10 import setuptools                                                      │
+│    11                                                                        │
+│    12 from .. import _config                                                 │
+│    13                                                                        │
+│                                                                              │
+│ /usr/local/lib/python3.10/site-packages/setuptools/__init__.py:22 in         │
+│ <module>                                                                     │
+│                                                                              │
+│    19 # workaround for #4476                                                 │
+│    20 sys.modules.pop('backports', None)                                     │
+│    21                                                                        │
+│ ❱  22 import _distutils_hack.override  # noqa: F401                          │
+│    23                                                                        │
+│    24 from . import logging, monkey                                          │
+│    25 from .depends import Require                                           │
+│                                                                              │
+│ /usr/local/Cellar/python@3.10/3.10.17/Frameworks/Python.framework/Versions/3 │
+│ .10/lib/python3.10/site-packages/_distutils_hack/override.py:1 in <module>   │
+│                                                                              │
+│ ❱ 1 __import__('_distutils_hack').do_override()                              │
+│   2                                                                          │
+│                                                                              │
+│ /usr/local/Cellar/python@3.10/3.10.17/Frameworks/Python.framework/Versions/3 │
+│ .10/lib/python3.10/site-packages/_distutils_hack/__init__.py:89 in           │
+│ do_override                                                                  │
+│                                                                              │
+│    86 │   """                                                                │
+│    87 │   if enabled():                                                      │
+│    88 │   │   warn_distutils_present()                                       │
+│ ❱  89 │   │   ensure_local_distutils()                                       │
+│    90                                                                        │
+│    91                                                                        │
+│    92 class _TrivialRe:                                                      │
+│                                                                              │
+│ /usr/local/Cellar/python@3.10/3.10.17/Frameworks/Python.framework/Versions/3 │
+│ .10/lib/python3.10/site-packages/_distutils_hack/__init__.py:76 in           │
+│ ensure_local_distutils                                                       │
+│                                                                              │
+│    73 │                                                                      │
+│    74 │   # check that submodules load as expected                           │
+│    75 │   core = importlib.import_module('distutils.core')                   │
+│ ❱  76 │   assert '_distutils' in core.__file__, core.__file__                │
+│    77 │   assert 'setuptools._distutils.log' not in sys.modules              │
+│    78                                                                        │
+│    79                                                                        │
+╰──────────────────────────────────────────────────────────────────────────────╯
+AssertionError: 
+/usr/local/Cellar/python@3.10/3.10.17/Frameworks/Python.framework/Versions/3.10/
+lib/python3.10/distutils/core.py
+
+```
+
+---
+
+
+
+---
+
+Let me try using `uv` to install the dependencies and work around this setuptools issue:
+
+---
+
+```bash
+uv pip install --upgrade setuptools
+```
+
+```
+error: No virtual environment found for Python 3.12; run `uv venv` to create an 
+environment, or pass `--system` to install into a non-virtual environment
+
+```
+
+---
+
+
+
+---
+
+```bash
+uv pip install --system --upgrade setuptools
+```
+
+```
+Using Python 3.12.8 environment at: /Library/Frameworks/Python.framework/Version
+s/3.12
+Resolved 1 package in 182ms
+Audited 1 package in 2ms
+
+```
+
+---
+
+
+
+---
+

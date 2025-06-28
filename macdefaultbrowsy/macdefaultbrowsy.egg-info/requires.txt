@@ -1,3 +1,0 @@
-pyobjc-framework-CoreServices
-fire
-loguru
