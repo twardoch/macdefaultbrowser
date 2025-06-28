@@ -1,7 +1,7 @@
 
 # macdefaultbrowser
 
-A command-line tool for macOS that allows you to view installed browsers and set the default web browser, with automatic dialog confirmation.
+A command-line tool (written in Swift)for macOS that allows you to view installed browsers and set the default web browser, with automatic dialog confirmation.
 
 ## Features
 
@@ -106,7 +106,6 @@ npx repomix -i ".giga,.cursorrules,.cursor,*.md" -o llms.txt .
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Acknowledgments
+## References
 
-- Original Objective-C implementation in `reference/src/main.m`
-- Dialog automation inspired by `reference/good.sh`
+- Check [macdefaultbrowsy](https://github.com/twardoch/macdefaultbrowsy) for a similar tool and package written in Python.
