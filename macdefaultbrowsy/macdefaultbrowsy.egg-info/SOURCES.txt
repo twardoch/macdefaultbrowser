@@ -1,0 +1,14 @@
+README.md
+pyproject.toml
+macdefaultbrowsy/__init__.py
+macdefaultbrowsy/__main__.py
+macdefaultbrowsy/dialog_automation.py
+macdefaultbrowsy/launch_services.py
+macdefaultbrowsy/macdefaultbrowsy.py
+macdefaultbrowsy.egg-info/PKG-INFO
+macdefaultbrowsy.egg-info/SOURCES.txt
+macdefaultbrowsy.egg-info/dependency_links.txt
+macdefaultbrowsy.egg-info/entry_points.txt
+macdefaultbrowsy.egg-info/requires.txt
+macdefaultbrowsy.egg-info/top_level.txt
+tests/test_browser_manager.py

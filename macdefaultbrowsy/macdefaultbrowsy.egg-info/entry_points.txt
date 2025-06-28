@@ -1,0 +1,2 @@
+[console_scripts]
+macdefaultbrowsy = macdefaultbrowsy.__main__:cli

@@ -6,9 +6,13 @@ BINARY_NAME = macdefaultbrowser
 PREFIX = /usr/local
 BINDIR = $(PREFIX)/bin
 
+# Project directory
+PROJECT_DIR = macdefaultbrowser
+PYTHON_PROJECT_DIR = macdefaultbrowsy
+
 # Directories
-BUILD_DIR = build
-DIST_DIR = dist
+BUILD_DIR = $(PROJECT_DIR)/build
+DIST_DIR = $(PROJECT_DIR)/dist
 
 # Version detection from git tags
 # Try to get version from git describe, fallback to 0.0.1-dev if no tags
@@ -38,8 +42,8 @@ all: build
 .PHONY: build
 build: generate-version
 	@mkdir -p $(BUILD_DIR)
-	$(SWIFT) build $(SWIFT_BUILD_FLAGS)
-	cp .build/apple/Products/Release/$(BINARY_NAME) $(BUILD_DIR)/$(BINARY_NAME)
+	$(SWIFT) build --package-path $(PROJECT_DIR) $(SWIFT_BUILD_FLAGS)
+	cp $(PROJECT_DIR)/.build/apple/Products/Release/$(BINARY_NAME) $(BUILD_DIR)/$(BINARY_NAME)
 
 # Generate Version.swift from template
 .PHONY: generate-version
@@ -47,7 +51,7 @@ generate-version:
 	@echo "Generating Version.swift with version $(VERSION)"
 	@sed -e 's/VERSION_PLACEHOLDER/$(VERSION)/g' \
 	     -e 's/GIT_DESCRIBE_PLACEHOLDER/$(GIT_DESCRIBE)/g' \
-	     Sources/macdefaultbrowser/Version.swift.template > Sources/macdefaultbrowser/Version.swift
+	     $(PROJECT_DIR)/Sources/macdefaultbrowser/Version.swift.template > $(PROJECT_DIR)/Sources/macdefaultbrowser/Version.swift
 
 # Install the binary
 .PHONY: install
@@ -58,11 +62,11 @@ install: build
 # Clean build artifacts
 .PHONY: clean
 clean:
-	$(SWIFT) package clean
-	rm -rf .build
+	$(SWIFT) package --package-path $(PROJECT_DIR) clean
+	rm -rf $(PROJECT_DIR)/.build
 	rm -rf $(BUILD_DIR)
 	rm -rf $(DIST_DIR)
-	rm -f Sources/macdefaultbrowser/Version.swift
+	rm -f $(PROJECT_DIR)/Sources/macdefaultbrowser/Version.swift
 
 # Uninstall the binary
 .PHONY: uninstall
@@ -72,7 +76,7 @@ uninstall:
 # Run tests
 .PHONY: test
 test:
-	$(SWIFT) test
+	$(SWIFT) test --package-path $(PROJECT_DIR)
 
 # Sign the binary (optional, requires CODESIGN_IDENTITY)
 .PHONY: sign
@@ -140,6 +144,20 @@ version:
 notarize: sign
 	@./scripts/notarize.sh
 
+# --- Python Project Targets ---
+
+.PHONY: py-install
+py-install:
+	pip install -e $(PYTHON_PROJECT_DIR)
+
+.PHONY: py-test
+py-test:
+	python -m pytest $(PYTHON_PROJECT_DIR)/tests
+
+.PHONY: py-run
+py-run:
+	$(PYTHON_PROJECT_DIR)/.venv/bin/macdefaultbrowsy
+
 # Show help
 .PHONY: help
 help:
@@ -153,6 +171,10 @@ help:
 	@echo "  make notarize - Notarize the binary (requires Apple ID credentials)"
 	@echo "  make dist     - Create distribution package (.pkg and .dmg)"
 	@echo "  make version  - Show version information"
+	@echo "  --- Python ---"
+	@echo "  make py-install - Install Python dependencies"
+	@echo "  make py-test    - Run Python tests"
+	@echo "  make py-run     - Run the Python version"
 	@echo "  make help     - Show this help message"
 	@echo ""
 	@echo "Environment variables:"

@@ -102,10 +102,6 @@ To capture a snapshot of the codebase:
 npx repomix -i ".giga,.cursorrules,.cursor,*.md" -o llms.txt .
 ```
 
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

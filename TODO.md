@@ -1,35 +1,34 @@
 # TODO: macdefaultbrowser
 
-### 0.1. Building
+### 1. Project Restructuring
 
-- [x] `issues/101.txt` read and fix - Added Version.swift.template to git repository
-- [x] Fix deprecation warnings - Updated LaunchServicesWrapper to use modern NSWorkspace APIs on macOS 12.0+ with fallback to deprecated APIs for older versions
+- [x] Create `macdefaultbrowser` folder in the project root.
+- [x] Move all Swift project files and folders into `macdefaultbrowser`:
+    - `Sources/`
+    - `Tests/`
+    - `Package.swift`
+- [x] Update `Makefile` and any other build scripts to reflect the new paths.
+- [x] Verify that the Swift project still builds and runs correctly from its new location.
 
-### 0.2. Distribution
+### 2. Python Port (`macdefaultbrowsy`)
 
-- [x] Update Homebrew formula with correct SHA256 after first release - Created update script and documentation
-- [ ] Submit to homebrew-core or create custom tap - Formula ready, needs tap repository
-- [x] Add code signing for distribution outside App Store - Added to Makefile with documentation
-- [x] Consider notarization for enhanced security - Added scripts and GitHub Actions support
-
-### 0.3. Testing
-
-- [ ] Comprehensive test suite for BrowserManager
-- [ ] Integration tests with multiple browsers
-- [ ] Test dialog automation functionality  
-- [ ] Cross-platform compatibility testing
-- [ ] Performance benchmarking
-
-### 0.4. Documentation
-
-- [ ] Update README with usage examples
-- [ ] Create man page for CLI tool
-- [ ] Document dialog automation setup
-- [ ] Add troubleshooting guide
-
-### 0.5. Future Features
-
-- [ ] GUI version consideration
-- [ ] Additional browser metadata display
-- [ ] Batch operations support
-- [ ] Configuration file support
+- [x] Create `macdefaultbrowsy` folder in the project root.
+- [x] Create `macdefaultbrowsy/pyproject.toml` with basic package metadata and dependencies (like `pyobjc-framework-CoreServices`, `typer`, `rich`).
+- [x] Create the Python package structure inside `macdefaultbrowsy`:
+    - `macdefaultbrowsy/`
+        - `macdefaultbrowsy/`
+            - `__init__.py`
+            - `main.py` (CLI entry point)
+            - `browser_manager.py` (equivalent to `BrowserManager.swift`)
+            - `launch_services.py` (equivalent to `LaunchServicesWrapper.swift`)
+            - `dialog_automation.py` (equivalent to the AppleScript logic)
+        - `tests/`
+            - `test_browser_manager.py`
+- [x] Implement the core logic in `macdefaultbrowsy/launch_services.py` to get and set the default browser using `pyobjc`.
+- [x] Implement `macdefaultbrowsy/browser_manager.py` to handle browser name extraction and listing.
+- [x] Implement the command-line interface in `macdefaultbrowsy/main.py`.
+- [x] Implement `macdefaultbrowsy/dialog_automation.py`.
+- [x] Write unit tests in `tests/test_browser_manager.py`.
+- [x] Add a `README.md` to the `macdefaultbrowsy` folder with installation and usage instructions.
+- [x] Update the main `Makefile` to include targets for running the Python version.
+- [x] Port CLI from `Typer` to `fire`.
