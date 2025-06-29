@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Documentation
+- **Comprehensive README.md rewrite** - Improved clarity and structure of main documentation with better usage examples and installation instructions
+
+### Changed
+- **Streamlined .gitignore** - Refactored to better organize ignored files and patterns
+
+## [1.3.0] - 2025-06-28
+
 ### Added
 - Build output now goes to `build/` directory instead of root
 - New `make dist` target creates installable .pkg and .dmg files
