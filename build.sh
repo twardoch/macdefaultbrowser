@@ -1,5 +1,21 @@
 #!/usr/bin/env bash
+# this_file: build.sh
 
-npx repomix -i "AGENTS.md,GEMINI.md" -o llms.txt .
+set -euo pipefail
 
-make build && make dist && make install
+# Quick build script for development
+echo "Building macdefaultbrowser..."
+
+# Use the comprehensive build script
+./scripts/build-and-test.sh --release
+
+echo "Build completed. Binary location: macdefaultbrowser/build/macdefaultbrowser"
+
+# Test the binary
+if [[ -f "macdefaultbrowser/build/macdefaultbrowser" ]]; then
+    echo "Testing binary:"
+    ./macdefaultbrowser/build/macdefaultbrowser --version
+else
+    echo "Error: Binary not found at expected location"
+    exit 1
+fi

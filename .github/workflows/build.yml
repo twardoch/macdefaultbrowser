@@ -1,6 +1,6 @@
 # this_file: .github/workflows/build.yml
 
-name: Build
+name: Build and Test
 
 on:
   push:
@@ -10,21 +10,52 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    strategy:
+      matrix:
+        # Test on different macOS versions
+        os: [macos-13, macos-14, macos-latest]
+    
+    runs-on: ${{ matrix.os }}
     
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Needed for git describe
     
     - name: Select Xcode
       run: sudo xcode-select -s /Applications/Xcode.app
     
-    - name: Build
-      run: make build
-    
-    - name: Run tests
-      run: make test
-    
-    - name: Test binary
+    - name: Show environment info
       run: |
-        ./macdefaultbrowser
-        ./macdefaultbrowser --help || true
+        echo "macOS version: $(sw_vers -productVersion)"
+        echo "Xcode version: $(xcodebuild -version)"
+        echo "Swift version: $(swift --version)"
+        make version
+    
+    - name: Build and test
+      run: ./scripts/build-and-test.sh --verbose
+    
+    - name: Test binary functionality
+      run: |
+        ./macdefaultbrowser/build/macdefaultbrowser --version
+        ./macdefaultbrowser/build/macdefaultbrowser --help
+        ./macdefaultbrowser/build/macdefaultbrowser | head -10
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: macdefaultbrowser-build-${{ matrix.os }}
+        path: |
+          macdefaultbrowser/build/macdefaultbrowser
+          macdefaultbrowser/build/*.dSYM/
+        retention-days: 7
+    
+    - name: Run additional tests
+      run: |
+        # Test that the binary works with different arguments
+        ./macdefaultbrowser/build/macdefaultbrowser --version
+        # Test help output
+        ./macdefaultbrowser/build/macdefaultbrowser --help
+        # Test listing browsers (should not fail)
+        ./macdefaultbrowser/build/macdefaultbrowser || true

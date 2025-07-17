@@ -27,8 +27,13 @@ else
 endif
 
 # Build configuration
-SWIFT_BUILD_FLAGS = -c release --arch arm64 --arch x86_64
+SWIFT_BUILD_FLAGS = -c release
 SWIFT = swift
+
+# Add universal binary flags if building for distribution
+ifeq ($(UNIVERSAL), true)
+    SWIFT_BUILD_FLAGS += --arch arm64 --arch x86_64
+endif
 
 # Code signing configuration (optional)
 CODESIGN_IDENTITY ?= 
@@ -43,7 +48,14 @@ all: build
 build: generate-version
 	@mkdir -p $(BUILD_DIR)
 	$(SWIFT) build --package-path $(PROJECT_DIR) $(SWIFT_BUILD_FLAGS)
-	cp $(PROJECT_DIR)/.build/apple/Products/Release/$(BINARY_NAME) $(BUILD_DIR)/$(BINARY_NAME)
+	@if [ -f "$(PROJECT_DIR)/.build/apple/Products/Release/$(BINARY_NAME)" ]; then \
+		cp $(PROJECT_DIR)/.build/apple/Products/Release/$(BINARY_NAME) $(BUILD_DIR)/$(BINARY_NAME); \
+	elif [ -f "$(PROJECT_DIR)/.build/release/$(BINARY_NAME)" ]; then \
+		cp $(PROJECT_DIR)/.build/release/$(BINARY_NAME) $(BUILD_DIR)/$(BINARY_NAME); \
+	else \
+		echo "Error: Could not find built binary"; \
+		exit 1; \
+	fi
 
 # Generate Version.swift from template
 .PHONY: generate-version
@@ -94,8 +106,9 @@ sign: build
 
 # Create distribution package
 .PHONY: dist
-dist: build
+dist: 
 	@echo "Creating distribution package..."
+	@$(MAKE) build UNIVERSAL=true
 	@if [ -n "$(CODESIGN_IDENTITY)" ]; then \
 		$(MAKE) sign; \
 	fi

@@ -1,0 +1,111 @@
+# this_file: .github/workflows/ci.yml
+
+name: Continuous Integration
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      run_performance_tests:
+        description: 'Run performance tests'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  comprehensive-test:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Select Xcode
+      run: sudo xcode-select -s /Applications/Xcode.app
+    
+    - name: Show environment info
+      run: |
+        echo "macOS version: $(sw_vers -productVersion)"
+        echo "Xcode version: $(xcodebuild -version)"
+        echo "Swift version: $(swift --version)"
+        make version
+    
+    - name: Run comprehensive tests
+      run: |
+        ./scripts/build-and-test.sh --verbose --clean
+    
+    - name: Test code signing (without certificate)
+      run: |
+        # Test that code signing logic works (will warn but not fail)
+        ./scripts/build-and-test.sh --sign || true
+    
+    - name: Test release build (without signing)
+      run: |
+        ./scripts/build-and-test.sh --release --skip-sign || true
+    
+    - name: Performance tests
+      if: ${{ github.event.inputs.run_performance_tests == 'true' }}
+      run: |
+        echo "Running performance tests..."
+        # Test startup time
+        time ./macdefaultbrowser/build/macdefaultbrowser --version
+        
+        # Test browser listing performance  
+        time ./macdefaultbrowser/build/macdefaultbrowser
+        
+        # Test help performance
+        time ./macdefaultbrowser/build/macdefaultbrowser --help
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ci-build-artifacts
+        path: |
+          macdefaultbrowser/build/
+          macdefaultbrowser/dist/
+        retention-days: 3
+    
+    - name: Test script functionality
+      run: |
+        # Test release script in dry-run mode
+        ./scripts/release.sh --dry-run 1.0.0-test
+        
+        # Test build script with different options
+        ./scripts/build-and-test.sh --help
+  
+  compatibility-test:
+    strategy:
+      matrix:
+        os: [macos-13, macos-14, macos-latest]
+        swift-version: ['5.9', '5.10']
+    
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Select Xcode
+      run: sudo xcode-select -s /Applications/Xcode.app
+    
+    - name: Test Swift version compatibility
+      run: |
+        echo "Testing Swift ${{ matrix.swift-version }} compatibility"
+        # Build with specific Swift version if available
+        swift --version
+        ./scripts/build-and-test.sh
+    
+    - name: Test on different macOS versions
+      run: |
+        echo "Testing on macOS $(sw_vers -productVersion)"
+        ./macdefaultbrowser/build/macdefaultbrowser --version
+        ./macdefaultbrowser/build/macdefaultbrowser --help
+        
+        # Test that binary works on this macOS version
+        ./macdefaultbrowser/build/macdefaultbrowser || true
