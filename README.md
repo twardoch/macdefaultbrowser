@@ -57,9 +57,16 @@ brew install https://raw.githubusercontent.com/twardoch/macdefaultbrowser/main/m
     ```
 3.  Build and install:
     ```bash
+    # Quick build
+    ./build.sh
+    
+    # Or comprehensive build with testing
+    ./scripts/build-and-test.sh --verbose
+    
+    # Install to system
     make install
     ```
-    This will compile the Swift project (located in the `macdefaultbrowser/` subdirectory) and install the `macdefaultbrowser` binary to `/usr/local/bin`.
+    This will compile the Swift project and install the `macdefaultbrowser` binary to `/usr/local/bin`.
 
 ### `macdefaultbrowsy` (Python)
 
@@ -198,23 +205,40 @@ The Python version (`macdefaultbrowsy`) offers similar functionality with a focu
 
 ### Build Process
 
-Both projects use a root `Makefile` for common development tasks.
+The project uses a comprehensive build system with multiple entry points:
 
-*   **Swift (`macdefaultbrowser`):**
-    *   Located in the `macdefaultbrowser/` subdirectory.
-    *   `make build`: Compiles the Swift source code into a universal binary located in `macdefaultbrowser/build/`.
-    *   `make install`: Builds and installs the binary to `/usr/local/bin`.
-    *   `make test`: Runs unit tests.
-    *   `make dist`: Creates distributable `.pkg` and `.dmg` installers.
-    *   `make sign`: Signs the binary (requires `CODESIGN_IDENTITY` to be set).
-    *   `make notarize`: Notarizes the signed binary/package (requires Apple ID credentials).
-    *   The build process also dynamically generates `macdefaultbrowser/Sources/macdefaultbrowser/Version.swift` from git tags.
-*   **Python (`macdefaultbrowsy`):**
-    *   Located in the `macdefaultbrowser/macdefaultbrowsy/` subdirectory.
-    *   Uses `hatch` as the build backend, configured in `pyproject.toml`.
-    *   `make py-install`: Installs the Python package in editable mode (e.g., `uv pip install -e .`).
-    *   `make py-test`: Runs Python unit tests (using `pytest`).
-    *   `make py-run`: A convenience target to run the installed Python script (may require virtual environment activation).
+#### Quick Development Build
+```bash
+# Simple build for development
+./build.sh
+
+# Comprehensive build with testing
+./scripts/build-and-test.sh --verbose
+```
+
+#### Advanced Build Options
+```bash
+# Build with code signing
+./scripts/build-and-test.sh --sign
+
+# Create release artifacts
+./scripts/build-and-test.sh --release
+
+# Clean build
+./scripts/build-and-test.sh --clean --verbose
+```
+
+#### Makefile Targets
+*   `make build`: Compiles the Swift source code into a universal binary
+*   `make test`: Runs comprehensive unit tests
+*   `make install`: Builds and installs the binary to `/usr/local/bin`
+*   `make dist`: Creates distributable `.pkg` and `.dmg` installers
+*   `make sign`: Signs the binary (requires `CODESIGN_IDENTITY`)
+*   `make notarize`: Notarizes the signed binary/package
+*   `make clean`: Removes all build artifacts
+*   `make version`: Shows version information
+
+The build system automatically generates version information from git tags and creates universal binaries for both Intel and Apple Silicon Macs.
 
 ### Coding and Contribution Guidelines
 
